@@ -6,24 +6,36 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import com.amazonaws.services.ec2.model.Instance;
 import com.cleantips.api.model.Services;
-import com.cleantips.template.Util;
 import com.cleantips.model.Outputs;
 import com.cleantips.model.Parameters;
 import com.cleantips.model.Properties;
 import com.cleantips.model.Resources;
 import com.cleantips.model.Stack;
 import com.cleantips.model.Template;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * The Class TemplateGenerator.
+ */
 public class TemplateGenerator {
 
-	public static void execute(ArrayList<Services> services) throws NoSuchMethodException, SecurityException, ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, IOException {
+	/**
+	 * Execute.
+	 *
+	 * @param services the services
+	 * @throws NoSuchMethodException the no such method exception
+	 * @throws SecurityException the security exception
+	 * @throws ClassNotFoundException the class not found exception
+	 * @throws InstantiationException the instantiation exception
+	 * @throws IllegalAccessException the illegal access exception
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws InvocationTargetException the invocation target exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	public void execute(ArrayList<Services> services) throws NoSuchMethodException, SecurityException, ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, IOException {
 
 		String region = "us-east-1a";
 		
@@ -60,6 +72,12 @@ public class TemplateGenerator {
 
 	}
 
+	/**
+	 * Generate template version.
+	 *
+	 * @param template the template
+	 * @return the template
+	 */
 	private static Template generateTemplateVersion(Template template) {
 
 		template.setAWSTemplateFormatVersion("2010-09-09");
@@ -68,6 +86,12 @@ public class TemplateGenerator {
 
 	}
 
+	/**
+	 * Generate parameters.
+	 *
+	 * @param template the template
+	 * @return the template
+	 */
 	private static Template generateParameters(Template template) {
 
 		Parameters parameters = new Parameters();
@@ -78,16 +102,37 @@ public class TemplateGenerator {
 
 	}
 
+	/**
+	 * Generate mappings.
+	 *
+	 * @param template the template
+	 * @return the template
+	 */
 	private static Template generateMappings(Template template) {
 		return template;
 
 	}
 
+	/**
+	 * Generate conditions.
+	 *
+	 * @param template the template
+	 * @return the template
+	 */
 	private static Template generateConditions(Template template) {
 		return template;
 
 	}
 
+	/**
+	 * Generate resources.
+	 *
+	 * @param <T> the generic type
+	 * @param template the template
+	 * @param services the services
+	 * @param output the output
+	 * @return the template
+	 */
 	private static <T> Template generateResources(Template template, ArrayList<Services> services, HashMap output) {
 		
 		Resources resources = new Resources();
@@ -179,6 +224,15 @@ public class TemplateGenerator {
 
 	}
 
+	/**
+	 * Generate output.
+	 *
+	 * @param <T> the generic type
+	 * @param template the template
+	 * @param services the services
+	 * @param output the output
+	 * @return the template
+	 */
 	private static <T> Template generateOutput(Template template, ArrayList<Services> services, HashMap output) {
 		
 		Outputs outputs = new Outputs();
@@ -241,6 +295,20 @@ public class TemplateGenerator {
 
 
 	}
+	
+	/**
+	 * Creates the services.
+	 *
+	 * @param services the services
+	 * @return the hash map
+	 * @throws NoSuchMethodException the no such method exception
+	 * @throws SecurityException the security exception
+	 * @throws ClassNotFoundException the class not found exception
+	 * @throws InstantiationException the instantiation exception
+	 * @throws IllegalAccessException the illegal access exception
+	 * @throws IllegalArgumentException the illegal argument exception
+	 * @throws InvocationTargetException the invocation target exception
+	 */
 	private static HashMap createServices(ArrayList<Services> services) throws NoSuchMethodException, SecurityException, ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		
 		ArrayList serviceList = new ArrayList();

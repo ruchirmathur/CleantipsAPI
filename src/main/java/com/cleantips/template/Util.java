@@ -37,8 +37,21 @@ import com.cleantips.ec2.instance.model.Ref;
 import com.cleantips.vpc.eip.model.EIP;
 import com.cleantips.vpc.gateway.model.VpcGateway;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class Util.
+ */
 public class Util {
 
+	/**
+	 * Gets the bucket location.
+	 *
+	 * @param map the map
+	 * @param region the region
+	 * @param file the file
+	 * @param type the type
+	 * @return the bucket location
+	 */
 	public static String getBucketLocation(HashMap map, String region, File file, String type) {
 
 		String bucketName = "Stack";
