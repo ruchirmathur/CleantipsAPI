@@ -372,7 +372,7 @@ public class Util {
 
 		return geoRestriction;
 
-	}
+	}*/
 
 	public static String getBucketLocation(HashMap map, String region, File file, String type) {
 
@@ -388,7 +388,7 @@ public class Util {
 
 			System.out.println("finalBucketName nme::::" + finalBucketName);
 
-			Bucket bucket = s3.createBucket(finalBucketName);
+			com.amazonaws.services.s3.model.Bucket bucket = s3.createBucket(finalBucketName);
 			// Upload a file as a new object with ContentType and title specified.
 
 		}
@@ -403,5 +403,5 @@ public class Util {
 		System.out.println("bucketLocation nme::::" + bucketLocation);
 		return bucketLocation;
 
-	}*/
+	}
 }

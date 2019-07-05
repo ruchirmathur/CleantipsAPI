@@ -10,6 +10,17 @@ public class GenerateTemplateResponse {
 /** The template urls. */
 private ArrayList<String> templateUrls;
 
+/** The status. */
+private String status;
+
+public String getStatus() {
+	return status;
+}
+
+public void setStatus(String status) {
+	this.status = status;
+}
+
 /**
  * Gets the template urls.
  *

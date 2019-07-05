@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class CloudFrontTemplateGenerator {
 
 	public HashMap execute(HashMap map,String type) throws IOException {
-		
+		System.out.println("In CT");
 		String region = "us-east-1a";
 		
 		HashMap output = new HashMap();
@@ -35,6 +35,8 @@ public class CloudFrontTemplateGenerator {
 		ObjectMapper objectMapper = new ObjectMapper();
 		
 		File file = new File(type);
+		
+		System.out.println("getDistribution::"+template.getResources().getDistribution().getType());
 		
 		String json = objectMapper.writeValueAsString(template);
 		
@@ -88,6 +90,8 @@ public class CloudFrontTemplateGenerator {
 		resources.setDistribution(distribution);
 		
 		template.setResources(resources);
+		
+		System.out.println("In generateDistributionProperties"+template.getResources().getDistribution().getProperties().getDistributionConfig().getRestrictions());
 
 	}
 

@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.amazonaws.util.StringUtils;
 import com.cleantips.api.model.ArchitectureSearchRequest;
 import com.cleantips.api.model.ArchitectureSearchResponse;
 import com.cleantips.api.model.GenerateTemplateRequest;
@@ -38,12 +39,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 public class CleanTipsController {
-	
+
 	@Value("${elasticsearch.url}")
-	private  String elasticSearchEndPoint;
-	
+	private String elasticSearchEndPoint;
+
 	@Value("${elasticsearch.index}")
 	private String index;
+
+	@Value("${default.region}")
+	private String defaultRegion;
 
 	/**
 	 * 
@@ -64,6 +68,14 @@ public class CleanTipsController {
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException, IOException {
 
 		GenerateTemplateRequest generateChangeSetRequest = inputPayload;
+
+		if (generateChangeSetRequest != null && generateChangeSetRequest.getRegion() != null
+				& StringUtils.isNullOrEmpty(generateChangeSetRequest.getRegion())) {
+			{
+				generateChangeSetRequest.setRegion(defaultRegion);
+			}
+
+		}
 
 		GenerateTemplateResponse generateTemplateResponse = new GenerateTemplateResponse();
 
@@ -110,7 +122,7 @@ public class CleanTipsController {
 		ArchitectureSearchResponse architectureSearchResponse = null;
 
 		ArrayList<ArchitectureSearchResponse> arr = null;
-		
+
 		String suggestText = null;
 
 		RestHighLevelClient restClient = new RestHighLevelClient(
@@ -139,9 +151,9 @@ public class CleanTipsController {
 			response = restClient.search(searchRequest, RequestOptions.DEFAULT);
 
 			ObjectMapper objectMapper = new ObjectMapper();
-			
+
 			Suggest suggest = response.getSuggest();
-			
+
 			CompletionSuggestion entries = suggest.getSuggestion("suggest_architecture");
 
 			for (CompletionSuggestion.Entry entry : entries) {
@@ -163,10 +175,10 @@ public class CleanTipsController {
 				}
 			}
 			restClient.close();
-			
+
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace(); 
+			e.printStackTrace();
 		}
 
 		return arr;
@@ -194,7 +206,7 @@ public class CleanTipsController {
 
 		TemplateGenerator templateGenerator = new TemplateGenerator();
 
-		templateGenerator.execute(generateTemplateRequest.getAppServices());
+		generateTemplateResponse = templateGenerator.execute(generateTemplateRequest);
 
 		return generateTemplateResponse;
 

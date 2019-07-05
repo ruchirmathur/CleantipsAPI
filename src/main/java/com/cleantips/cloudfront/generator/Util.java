@@ -23,19 +23,28 @@ public class Util {
 
 	@SuppressWarnings("unused")
 	public static Distribution createDistribution(HashMap map,String regionName) {
-
-		Distribution distribution = new Distribution();
+		
+		Distribution distribution = null ;
+		try {
+		System.out.println("In createDistribution");
+		 distribution = new Distribution();
 
 		Properties properties = generateDistributionProperties(distribution, regionName,map);
 		
 		distribution.setProperties(properties);
+		
+		System.out.println("distribution.setProperties::"+distribution.getProperties().getDistributionConfig().getComment());
+		
+		}catch (Exception ex) {
+			ex.printStackTrace();
+		}
 
 		return distribution;
 
 	}
 
 	private static Properties generateDistributionProperties(Distribution distribution, String regionName, HashMap map) {
-
+		System.out.println("In generateDistributionProperties");
 		Properties properties = new Properties();
 
 		properties.setDistributionConfig(createDistributionConfig(regionName,map));

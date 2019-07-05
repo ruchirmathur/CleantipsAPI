@@ -1,3 +1,6 @@
+/*
+ * 
+ */
 package com.cleantips.route53.generator;
 
 import java.io.File;
@@ -9,175 +12,322 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.util.StringUtils;
 import com.cleantips.route53.hostedzone.model.HostedZone;
 import com.cleantips.route53.hostedzone.model.HostedZoneConfig;
 import com.cleantips.route53.hostedzone.model.HostedZoneTag;
 import com.cleantips.route53.hostedzone.model.Properties;
+import com.cleantips.route53.hostedzone.model.VPC;
 import com.cleantips.route53.recordset.model.AliasTarget;
 import com.cleantips.route53.recordset.model.Geolocation;
 import com.cleantips.route53.recordset.model.RecordSet;
 import com.cleantips.route53.recordset.model.Ref;
 
+/**
+ * The Class Util.
+ */
 public class Util {
 
-	@SuppressWarnings("unused")
-	public static HostedZone createHostedZone(HashMap map, String regionName) {
+	/**
+	 * This method is used to create a hosted zone on route 53.
+	 *
+	 * @param map        the map
+	 * @param regionName the region name
+	 * @return the hosted zone
+	 */
+	public static HostedZone createHostedZone(HashMap<?, ?> map) {
 
 		HostedZone hostedZone = new HostedZone();
 
-		//Properties properties = generateHostedZoneProperties(map,hostedZone, regionName);
-		
-		//hostedZone.setProperties(properties);
+		Properties properties = generateHostedZoneProperties(map, hostedZone);
+
+		hostedZone.setProperties(properties);
 
 		return hostedZone;
 
 	}
-	/*public static HostedZone createRecordSet(HashMap map, String regionName) {
+
+	/**
+	 * This method is used to create a record set in Route53.
+	 *
+	 * @param map        the map
+	 * @param regionName the region name
+	 * @return the record set
+	 */
+	public static RecordSet createRecordSet(HashMap<?, ?> map) {
 
 		RecordSet recordSet = new RecordSet();
 
-		Properties properties = generateRecordSetProperties(map,hostedZone, regionName);
-		
+		com.cleantips.route53.recordset.model.Properties properties = generateRecordSetProperties(map, recordSet);
+
 		recordSet.setProperties(properties);
 
 		return recordSet;
 
-	}*/
+	}
 
-	/*private static Properties generateHostedZoneProperties(HashMap map,HostedZone hostedZone, String regionName) {
+	/**
+	 * This method generates the Hosted Zone properties.
+	 *
+	 * @param map        the map
+	 * @param hostedZone the hosted zone
+	 * @param regionName the region name
+	 * @return the properties
+	 */
+	private static Properties generateHostedZoneProperties(HashMap<?, ?> map, HostedZone hostedZone) {
 
 		Properties properties = new Properties();
 
-		properties.setHostedZoneConfig(createHostedZoneConfig());
-		
-		properties.setHostedZoneTags(null);
-		
-		properties.setName(map.get("domainName").toString());	
-	
+		String regionName = null;
+
+		if (map.get("regionName") != null) {
+
+			properties.setHostedZoneConfig(createHostedZoneConfig(map, regionName));
+
+			properties.setHostedZoneTags(null);
+
+			if (map.get("domainName") != null && !StringUtils.isNullOrEmpty(map.get("domainName").toString())) {
+
+				properties.setName(map.get("domainName").toString());
+			}
+
+			// properties.setQueryLoggingConfig(queryLoggingConfig);
+
+			if (map.get("isPublic") != null && !StringUtils.isNullOrEmpty(map.get("isPublic").toString())
+					&& map.get("isPublic").toString().equalsIgnoreCase("false")) {
+
+				// properties.setVPCs(createVPC(map, regionName));
+			}
+		} else {
+			
+			properties = null;
+		}
 		return properties;
 
 	}
-	/*private static com.cleantips.route53.recordset.model.Properties generateRecordSetProperties(HashMap map,RecordSet recordSet, String regionName) {
+
+	/**
+	 * Generate record set properties.
+	 *
+	 * @param map        the map
+	 * @param recordSet  the record set
+	 * @param regionName the region name
+	 * @return the com.cleantips.route 53 .recordset.model. properties
+	 */
+	private static com.cleantips.route53.recordset.model.Properties generateRecordSetProperties(HashMap<?, ?> map,
+			RecordSet recordSet) {
 
 		com.cleantips.route53.recordset.model.Properties properties = new com.cleantips.route53.recordset.model.Properties();
+		
+		if (map.get("regionName")!=null) {
 
-		properties.setAliasTarget(createAliasTarget());	
-		
+		String regionName = map.get("regionName").toString();
+				
+		}
+
+		Ref hostedZoneId = new Ref();
+
+		hostedZoneId.setRef("HostedZone");
+
+		properties.setAliasTarget(createAliasTarget(map));
+
 		properties.setComment("Creating a record set");
-		
-		properties.setFailover(failover);
-		
-		properties.setGeoLocation(createGeolocation(map));
-		
-		properties.setHealthCheckId(healthCheckId);
-		
+
+		// properties.setFailover(failover);
+
+		// properties.setGeoLocation(createGeolocation(map));
+
+		// properties.setHealthCheckId(healthCheckId);
+
 		properties.setHostedZoneId(hostedZoneId);
 
-		properties.setHostedZoneName(hostedZoneName);
-		
-		properties.setMultiValueAnswer(multiValueAnswer);
-		
-		properties.setName(name);
-		
-		properties.setRegion(region);
-		
-		properties.setResourceRecords(resourceRecords);
-		
-		properties.setSetIdentifier(setIdentifier);
-		
-		properties.setTTL(tTL);
-		
-		properties.setType(type);
+		//properties.setHostedZoneName(hostedZoneName);
 
-		properties.setWeight(weight);
+		// properties.setMultiValueAnswer(multiValueAnswer);
+
+		// properties.setName(name);
+
+		//properties.setRegion(regionName);
+
+		// properties.setResourceRecords(resourceRecords);
+
+		// properties.setSetIdentifier(setIdentifier);
+
+		// properties.setTTL(tTL);
+		if (map.get("source") != null && map.get("source").toString().equalsIgnoreCase("Cloudfront")) {
+
+			properties.setType("A");
+
+		}
+
+		// properties.setWeight(weight);
 		return properties;
 
 	}
-	public static AliasTarget createAliasTarget() {
+
+	/**
+	 * Creates the alias target.
+	 *
+	 * @return the alias target
+	 */
+	public static AliasTarget createAliasTarget(HashMap<?, ?> map) {
 
 		AliasTarget aliasTarget = new AliasTarget();
-		
-		Ref ref= new Ref();
-		
-		ref.setRef("HostedZone");
-		
-		aliasTarget.setDNSName(dNSName);
-		
-		//aliasTarget.setEvaluateTargetHealth(null);
 
-		aliasTarget.setHostedZoneId(ref);
-		
-		return hostedZoneConfig;
+		Ref hostedZone = new Ref();
+
+		hostedZone.setRef("HostedZone");
+
+		Ref dnsName = new Ref();
+
+		dnsName.setRef("DnsName");
+
+		aliasTarget.setDNSName(dnsName);
+
+		// aliasTarget.setEvaluateTargetHealth(null);
+
+		aliasTarget.setHostedZoneId(hostedZone);
+
+		return aliasTarget;
 
 	}
-	public static Geolocation createGeolocation(HashMap map) {
+
+	/**
+	 * Creates the geolocation.
+	 *
+	 * @param map the map
+	 * @return the geolocation
+	 */
+	public static Geolocation createGeolocation(HashMap<?, ?> map) {
 
 		Geolocation geolocation = new Geolocation();
-		
+
 		geolocation.setContinentCode(map.get("continent").toString());
-		
+
 		geolocation.setCountryCode(map.get("countryCode").toString());
-		
-		//geolocation.setSubdivisionCode(subdivisionCode);
-		
+
+		// geolocation.setSubdivisionCode(map.get("subDivisionCode").toString());
+
 		return geolocation;
 
-	}           
+	}
+
+	/**
+	 * This method provides a comment on the Hosted zone created.
+	 *
+	 * @param map        the map
+	 * @param regionName the region name
+	 * @return the hosted zone config
+	 */
 	@SuppressWarnings("unused")
-	public static HostedZoneConfig createHostedZoneConfig() {
+	public static HostedZoneConfig createHostedZoneConfig(HashMap<?, ?> map, String regionName) {
 
 		HostedZoneConfig hostedZoneConfig = new HostedZoneConfig();
-		
+
 		hostedZoneConfig.setComment("This is a public hosted zone");
 
 		return hostedZoneConfig;
 
 	}
+
+	/**
+	 * Creates the VPC.
+	 *
+	 * @param map        the map
+	 * @param regionName the region name
+	 * @return the array list
+	 */
+	@SuppressWarnings("unused")
+	public static ArrayList<VPC> createVPC(HashMap<?, ?> map, String regionName) {
+
+		VPC vpc = new VPC();
+
+		return null;
+
+	}
+
+	/**
+	 * Creates the hosted zone tag.
+	 *
+	 * @return the array list
+	 */
 	@SuppressWarnings("unused")
 	public static ArrayList<HostedZoneTag> createHostedZoneTag() {
-		
-		ArrayList hostedZoneTags = new ArrayList();
+
+		ArrayList<HostedZoneTag> hostedZoneTags = new ArrayList<HostedZoneTag>();
 
 		HostedZoneTag hostedZoneTag = new HostedZoneTag();
-		
+
 		hostedZoneTag.setKey("");
-		
+
 		hostedZoneTag.setValue("");
-		
+
 		hostedZoneTags.add(hostedZoneTag);
 
 		return hostedZoneTags;
 
 	}
 
-	public static String getBucketLocation(HashMap map, String region, File file, String type) {
+	/**
+	 * Gets the bucket location where the template is stored
+	 *
+	 * @param map    the map
+	 * @param region the region
+	 * @param file   the file
+	 * @param type   the type
+	 * @return the bucket location
+	 */
+	@SuppressWarnings({ "rawtypes", "unused" })
+	public static String getBucketLocation(HashMap map, File file, String type) {
 
-		String bucketName = map.get("architecture").toString();
+		String bucketLocation = null;
 
-		String finalBucketName = bucketName.concat(type.toLowerCase());
+		String bucketName = null;
 
-		System.out.println("bucker nme::::" + finalBucketName);
+		String finalBucketName = null;
 
-		final AmazonS3 s3 = AmazonS3ClientBuilder.defaultClient();
+		try {
 
-		if (!s3.doesBucketExistV2(finalBucketName)) {
+			if (map.get("architecture") != null) {
 
-			System.out.println("finalBucketName nme::::" + finalBucketName);
+				bucketName = map.get("architecture").toString();
 
-			Bucket bucket = s3.createBucket(finalBucketName);
-			// Upload a file as a new object with ContentType and title specified.
+				finalBucketName = bucketName.concat(type.toLowerCase());
 
+				final AmazonS3 s3 = AmazonS3ClientBuilder.defaultClient();
+
+				if (!s3.doesBucketExistV2(finalBucketName)) {
+
+					Bucket bucket = s3.createBucket(finalBucketName);
+
+				}
+				PutObjectRequest request = new PutObjectRequest(finalBucketName, type, file);
+
+				ObjectMetadata metadata = new ObjectMetadata();
+
+				metadata.setContentType("plain/text");
+
+				metadata.addUserMetadata("x-amz-meta-title", "someTitle");
+
+				request.setMetadata(metadata);
+
+				s3.putObject(request);
+
+				bucketLocation = s3.getUrl(finalBucketName, type).toExternalForm();
+
+			} else {
+				
+				bucketLocation = null;
+			}
+
+		} catch (Exception ex) {
+
+			ex.printStackTrace();
+
+			bucketLocation = null;
 		}
-		PutObjectRequest request = new PutObjectRequest(finalBucketName, type, file);
-		ObjectMetadata metadata = new ObjectMetadata();
-		metadata.setContentType("plain/text");
-		metadata.addUserMetadata("x-amz-meta-title", "someTitle");
-		request.setMetadata(metadata);
-		s3.putObject(request);
-		System.out.println("finalBucketName nme::all::" + finalBucketName);
-		String bucketLocation = s3.getUrl(finalBucketName, type).toExternalForm();
-		System.out.println("bucketLocation nme::::" + bucketLocation);
+
 		return bucketLocation;
 
-	}*/
+	}
 }

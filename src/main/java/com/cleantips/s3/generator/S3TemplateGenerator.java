@@ -4,20 +4,22 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-import com.cleantips.cloudfront.base.model.Parameters;
-import com.cleantips.cloudfront.base.model.Resources;
-import com.cleantips.cloudfront.base.model.Template;
-import com.cleantips.cloudfront.distribution.model.Distribution;
+import com.cleantips.s3.base.model.Parameters;
+import com.cleantips.s3.base.model.Resources;
+import com.cleantips.s3.base.model.Template;
 import com.cleantips.s3.bucket.model.Bucket;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class S3TemplateGenerator {
 
-	public HashMap execute(HashMap map,String type) throws IOException {
+	public HashMap execute(HashMap map,String type) {
+		
+		HashMap output = new HashMap();
+		
+		try {
 		
 		String region = "us-east-1a";
 		
-		HashMap output = new HashMap();
 		
 		Template template = new Template();
 
@@ -43,11 +45,13 @@ public class S3TemplateGenerator {
 		
 		objectMapper.writeValue(file,template);
 		
-		//String bucketName = Util.getBucketLocation(map,region,file,type);
+		String bucketName = Util.getBucketLocation(map,region,file,type);
 		
-		//generateOutput(template,output,bucketName);
+		generateOutput(template,output,bucketName);
 		
-		System.out.println(output.get("TemplateUrl").toString());
+		}catch( Exception ex) {
+			ex.printStackTrace();
+		}
 		
 		return output;
 
@@ -85,6 +89,8 @@ public class S3TemplateGenerator {
 		Bucket bucket = Util.createBucket(map, regionName);
 	
 		Resources resources= new Resources();
+		
+		//resources.setDistribution(distribution);
 		
 	//	resources.setDistribution(distribution);
 		

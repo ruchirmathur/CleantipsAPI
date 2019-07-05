@@ -1,100 +1,197 @@
+/*
+ * 
+ */
 package com.cleantips.iam.generator;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 
-import com.cleantips.iam.base.model.Parameter;
+import com.amazonaws.util.StringUtils;
 import com.cleantips.iam.base.model.Parameters;
 import com.cleantips.iam.base.model.Resources;
 import com.cleantips.iam.base.model.Template;
 import com.cleantips.iam.group.model.Group;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class IAMTemplateGenerator.
+ */
 public class IAMTemplateGenerator {
 
-	public HashMap execute(HashMap map, String type) throws IOException {
-		
-		String region = "us-east-1a";
-		
-		HashMap output= new HashMap();
-		
-		Template template = new Template();
+	/**
+	 * Execute method is the primary method that generates the Cloudformation
+	 * template for a service.
+	 *
+	 * @param propertyMap the property map
+	 * @param type the type
+	 * @return the hash map
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public HashMap<?, ?> execute(HashMap<?, ?> propertyMap, String type) {
 
-		generateTemplateVersion(template);
-		
-		generateDescription(template,map);
-		
-		generateParameters(template,region,map);
+		System.out.println("in the rote");
 
-//		template = generateResources(template,region,map);
+		String bucketName = null;
 
-		generateOutput(template,output);
+		ObjectMapper objectMapper = null;
 
-		//template = generateMappings(template);
+		HashMap outputMap = new HashMap();
 
-		///template = generateConditions(template);
-		
-		ObjectMapper objectMapper = new ObjectMapper();
-		
-		File file = new File("iam.json");
-		
-		String json = objectMapper.writeValueAsString(template);
-		
-		System.out.println(json);
-		
-		objectMapper.writeValue(file,template);
-		
-		return output;
+		try {
+
+			if (propertyMap != null && propertyMap.size() > 0 && !StringUtils.isNullOrEmpty(type)) {
+
+				Template template = new Template();
+
+				generateTemplateVersion(template, propertyMap);
+
+				generateDescription(template, propertyMap);
+
+				generateParameters(template, propertyMap);
+
+				generateResources(template, propertyMap);
+
+				generateMappings(template, propertyMap);
+
+				generateConditions(template, propertyMap);
+
+				objectMapper = new ObjectMapper();
+
+				File file = new File(type);
+
+				String json = objectMapper.writeValueAsString(template);
+
+				System.out.println(json);
+
+				objectMapper.writeValue(file, template);
+
+				bucketName = Util.getBucketLocation(propertyMap, file, type);
+
+				generateOutput(template, propertyMap, outputMap, bucketName);
+
+			} else {
+
+				outputMap = null;
+			}
+		} catch (Exception ex) {
+
+			ex.printStackTrace();
+
+			outputMap.put("TemplateUrl", null);
+			outputMap.put("Status", "Failure");
+			outputMap.put("Message", ex.getMessage());
+
+		}
+		return outputMap;
 
 	}
 
-	private static void generateTemplateVersion(Template template) {
+	/**
+	 * Generate template version.
+	 *
+	 * @param template the template
+	 * @param propertyMap the property map
+	 */
+	private static void generateTemplateVersion(Template template, HashMap<?,?> propertyMap) {
 
 		template.setAWSTemplateFormatVersion("2010-09-09");
 
 	}
-	private static void generateDescription(Template template, HashMap map) {
 
-		//template.setDescription(map.get("architecture").toString());
+
+	/**
+	 * Generate description.
+	 *
+	 * @param template the template
+	 * @param propertyMap the property map
+	 */
+	private static void generateDescription(Template template, HashMap<?, ?> propertyMap) {
+
+		if (propertyMap.get("architecture") != null) {
+
+			template.setDescription(propertyMap.get("architecture").toString());
+
+		}
 
 	}
 
-	private static void generateParameters(Template template, String region, HashMap map) {
+	/**
+	 * Generate parameters.
+	 *
+	 * @param template the template
+	 * @param propertyMap the property map
+	 */
+	private static void generateParameters(Template template, HashMap<?, ?> propertyMap) {
 
 		Parameters parameters = new Parameters();
-		
-		Parameter parameter = new Parameter();
-		
-	
 
 		template.setParameters(parameters);
 
 	}
 
-	private static void generateMappings(Template template) {
+	/**
+	 * Generate mappings.
+	 *
+	 * @param template the template
+	 * @param propertyMap the property map
+	 */
+	private static void generateMappings(Template template, HashMap<?, ?> propertyMap) {
 
 	}
 
+	/**
+	 * Generate conditions.
+	 *
+	 * @param template the template
+	 * @param propertyMap the property map
+	 */
+	private static void generateConditions(Template template, HashMap<?, ?> propertyMap) {
+
+	}
+
+	/**
+	 * Generate conditions.
+	 *
+	 * @param template the template
+	 */
 	private static void generateConditions(Template template) {
 
 	}
 
-	private static <T> void generateResources(Template template,String regionName, HashMap map) {
-		
-		Group group = Util.createGroup(map);
-		
-		Resources resources= new Resources();
-		
+	/**
+	 * Generate resources.
+	 *
+	 * @param <T> the generic type
+	 * @param template the template
+	 * @param propertyMap the property map
+	 */
+	private static void generateResources(Template template, HashMap<?,?> propertyMap) {
+
+		Group group = Util.createGroup(propertyMap);
+
+		Resources resources = new Resources();
+
 		resources.setGroup(group);
-		
+
 		template.setResources(resources);
 
 	}
 
-	private static void generateOutput(Template template,HashMap map) {
+	/**
+	 * Generate output.
+	 *
+	 * @param template    the template
+	 * @param propertyMap the property map
+	 * @param outputMap the output map
+	 * @param templateUrl the template url
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static void generateOutput(Template template, HashMap<?, ?> propertyMap, HashMap outputMap,
+			String templateUrl) {
 
+		outputMap.put("TemplateUrl", templateUrl);
 	}
+
 
 }
