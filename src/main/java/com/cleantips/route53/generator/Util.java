@@ -290,8 +290,6 @@ public class Util {
 
 			if (map.get("architecture") != null) {
 
-				bucketName = map.get("architecture").toString();
-
 				finalBucketName = bucketName.concat(type.toLowerCase());
 
 				final AmazonS3 s3 = AmazonS3ClientBuilder.defaultClient();

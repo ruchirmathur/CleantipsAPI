@@ -45,7 +45,6 @@ public class Util {
 		return group;
 
 	}
-
 	/**
 	 * Generate group properties.
 	 *
