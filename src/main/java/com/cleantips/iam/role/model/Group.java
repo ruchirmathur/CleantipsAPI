@@ -1,4 +1,4 @@
-package com.cleantips.iam.group.model;
+package com.cleantips.iam.role.model;
 
 import java.util.ArrayList;
 
@@ -9,18 +9,17 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 @JsonNaming(PropertyNamingStrategy.PascalCaseStrategy.class)
 public class Group {
 	private String Type="AWS::IAM::Group";
-	private Properties Properties;
-	public Properties getProperties() {
-		return Properties;
-	}
-	public void setProperties(Properties properties) {
-		Properties = properties;
-	}
+	private Properties properties;
 	public String getType() {
 		return Type;
 	}
 	public void setType(String type) {
 		Type = type;
 	}
-	
+	public Properties getProperties() {
+		return properties;
+	}
+	public void setProperties(Properties properties) {
+		this.properties = properties;
+	}
 }

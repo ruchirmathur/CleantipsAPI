@@ -11,6 +11,9 @@ import com.cleantips.iam.base.model.Parameters;
 import com.cleantips.iam.base.model.Resources;
 import com.cleantips.iam.base.model.Template;
 import com.cleantips.iam.group.model.Group;
+import com.cleantips.iam.policy.model.Policy;
+import com.cleantips.iam.user.model.User;
+import com.cleantips.iam.usertogroup.model.UserToGroupAddition;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 // TODO: Auto-generated Javadoc
@@ -167,13 +170,25 @@ public class IAMTemplateGenerator {
 	 * @param propertyMap the property map
 	 */
 	private static void generateResources(Template template, HashMap<?,?> propertyMap) {
+		
+		Resources resources= new Resources();
 
 		Group group = Util.createGroup(propertyMap);
-
-		Resources resources = new Resources();
-
+		
+		User user = Util.createUser(propertyMap);
+		
+		UserToGroupAddition userToGroupAddition = Util.createUserToGroupAddition(propertyMap);
+		
+		Policy policy = Util.createPolicy(propertyMap);
+		
 		resources.setGroup(group);
-
+		
+		resources.setUser(user);
+		
+		resources.setUserToGroupAddition(userToGroupAddition);
+		
+		resources.setPolicy(policy);
+		
 		template.setResources(resources);
 
 	}

@@ -6,19 +6,20 @@ package com.cleantips.iam.generator;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map.Entry;
 
-import com.amazonaws.services.appstream.model.DescribeImagesRequest;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.cleantips.iam.group.model.Group;
-import com.cleantips.iam.group.model.Policy;
-import com.cleantips.iam.group.model.PolicyDocument;
+import com.cleantips.iam.policy.model.Policy;
+import com.cleantips.iam.policy.model.PolicyDocument;
 import com.cleantips.iam.group.model.Properties;
-import com.cleantips.iam.group.model.Statement;
+import com.cleantips.iam.policy.model.Statement;
+import com.cleantips.iam.user.model.User;
+import com.cleantips.iam.usertogroup.model.UserToGroupAddition;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -33,98 +34,380 @@ public class Util {
 	 * @return the group
 	 */
 	@SuppressWarnings("unused")
-	public static Group createGroup(HashMap map) {
+	public static Group createGroup(HashMap<?, ?> propertyMap) {
 
-		Group group = new Group();
+		Group gr = null;
 
-		Properties properties = generateGroupProperties(map);
+		Properties properties = null;
 
-		group.setProperties(properties);
-		
+		HashMap<String, Object> groupMap = null;
 
-		return group;
+		String name = null;
+
+		ArrayList users = null;
+
+		if (propertyMap != null && propertyMap.size() > 0) {
+
+			for (Entry<?, ?> entry : propertyMap.entrySet()) {
+
+				if (entry.getKey() != null) {
+
+					if (entry.getKey().toString().equalsIgnoreCase("group")) {
+
+						System.out.println("test:::" + entry.getValue());
+
+						ArrayList group = (ArrayList) entry.getValue();
+
+						groupMap = new HashMap();
+
+						for (int i = 0; i < group.size(); i++) {
+
+							System.out.println("test:::" + group.get(i));
+
+							HashMap map = (HashMap) group.get(i);
+
+							properties = new Properties();
+
+							gr = new Group();
+
+							if (map.get("name") != null) {
+
+								properties.setGroupName(map.get("name").toString());
+
+								gr.setProperties(properties);
+
+
+							}
+
+						}
+
+					}
+				}
+			}
+		}
+
+		return gr;
 
 	}
-	/**
-	 * Generate group properties.
-	 *
-	 * @param map the map
-	 * @return the properties
-	 */
-	private static Properties generateGroupProperties(HashMap map) {
+
+	@SuppressWarnings("unused")
+	public static User createUser(HashMap<?, ?> propertyMap) {
+
+		User user = null;
+
+		com.cleantips.iam.user.model.Properties properties = null;
+
+		HashMap<String, Object> userMap = null;
+
+		String name = null;
+
+		ArrayList users = null;
 		
+		ArrayList groups = new ArrayList() ;
 
-		Properties properties = new Properties();
+		HashMap umap = null;
 
-	//	Ref imageTypeRef = new Ref();
+		if (propertyMap != null && propertyMap.size() > 0) {
 
-		//Ref instanceTypeRef = new Ref();
+			for (Entry<?, ?> entry : propertyMap.entrySet()) {
 
-		//Ref keyNameRef = new Ref();
+				if (entry.getKey() != null) {
 
-		properties.setGroupName(map.get("groupName").toString());
-		
-		properties.setPolicies(setUpPolicy(map));
-		
-		return null;
-		
+					if (entry.getKey().toString().equalsIgnoreCase("group")) {
+
+						System.out.println("test:::" + entry.getValue());
+
+						ArrayList group = (ArrayList) entry.getValue();
+
+						for (int i = 0; i < group.size(); i++) {
+
+							System.out.println("test:::" + group.get(i));
+
+							HashMap map = (HashMap) group.get(i);
+							
+
+							userMap = new HashMap();
+
+							if (map.get("user") != null) {
+
+								ArrayList userss = (ArrayList) map.get("user");
+								
+
+								for (int j = 0; j < userss.size(); j++) {
+									
+									properties = new com.cleantips.iam.user.model.Properties();
+
+									user = new User();
+
+									umap = (HashMap) userss.get(j);
+
+									if (umap.get("user") != null) {
+
+										System.out.println("test::user:" + umap.get("user").toString());
+										
+										groups.add(map.get("name").toString());
+										
+										properties.setGroups(groups);
+
+										properties.setUserName(umap.get("user").toString());
+
+										user.setProperties(properties);
+
+									}
+
+								}
+
+							}
+
+						}
+					}
+				}
+			}
+		}
+
+		return user;
+
 	}
 	
+	@SuppressWarnings("unused")
+	public static UserToGroupAddition createUserToGroupAddition(HashMap<?, ?> propertyMap) {
+
+		UserToGroupAddition user = null;
+
+		com.cleantips.iam.usertogroup.model.Properties properties = null;
+
+		HashMap<String, Object> userMap = null;
+
+		String name = null;
+
+		ArrayList users = null;
+		
+		ArrayList us = new ArrayList() ;
+
+		HashMap umap = null;
+
+		if (propertyMap != null && propertyMap.size() > 0) {
+
+			for (Entry<?, ?> entry : propertyMap.entrySet()) {
+
+				if (entry.getKey() != null) {
+
+					if (entry.getKey().toString().equalsIgnoreCase("group")) {
+
+						System.out.println("test:::" + entry.getValue());
+
+						ArrayList group = (ArrayList) entry.getValue();
+
+						for (int i = 0; i < group.size(); i++) {
+
+							System.out.println("test:::" + group.get(i));
+
+							HashMap map = (HashMap) group.get(i);
+							
+
+							userMap = new HashMap();
+
+							if (map.get("user") != null) {
+
+								ArrayList userss = (ArrayList) map.get("user");
+								
+
+								for (int j = 0; j < userss.size(); j++) {
+									
+									properties = new com.cleantips.iam.usertogroup.model.Properties();
+
+									user = new UserToGroupAddition();
+
+									umap = (HashMap) userss.get(j);
+
+									if (umap.get("user") != null) {
+
+										System.out.println("test::user:" + umap.get("user").toString());
+									    
+										us = new ArrayList();
+										
+										us.add(umap.get("user").toString());
+										
+										properties.setGroupName(map.get("name").toString());
+
+										properties.setUsers(us);
+
+										user.setProperties(properties);
+
+									}
+
+								}
+
+							}
+
+						}
+					}
+				}
+			}
+		}
+
+		return user;
+
+	}
+
+	@SuppressWarnings("unused")
+	public static Policy createPolicy(HashMap<?, ?> propertyMap) {
+
+		Policy policy = new Policy();
+
+		com.cleantips.iam.policy.model.Properties properties = null;
+
+		HashMap<String, Object> userMap = null;
+
+		String name = null;
+
+		ArrayList users = null;
+		
+		ArrayList us = new ArrayList() ;
+		
+		ArrayList groups = new ArrayList() ;
+
+		HashMap umap = null;
+		
+		PolicyDocument policyDocument= new PolicyDocument();
+		
+		Statement statement = new Statement();
+		
+		ArrayList statements = new ArrayList() ;
+
+		if (propertyMap != null && propertyMap.size() > 0) {
+
+			for (Entry<?, ?> entry : propertyMap.entrySet()) {
+
+				if (entry.getKey() != null) {
+
+					if (entry.getKey().toString().equalsIgnoreCase("group")) {
+
+						System.out.println("test:::" + entry.getValue());
+
+						ArrayList group = (ArrayList) entry.getValue();
+
+						for (int i = 0; i < group.size(); i++) {
+
+							System.out.println("test:::" + group.get(i));
+
+							HashMap map = (HashMap) group.get(i);
+							
+
+							userMap = new HashMap();
+
+							if (map.get("user") != null) {
+
+								ArrayList userss = (ArrayList) map.get("user");
+								
+
+								for (int j = 0; j < userss.size(); j++) {
+									
+									properties = new com.cleantips.iam.policy.model.Properties();
+
+									policy = new Policy();
+
+									umap = (HashMap) userss.get(j);
+
+									if (umap.get("user") != null) {
+
+										System.out.println("test::user:" + umap.get("user").toString());
+									    
+										us = new ArrayList();
+										
+										us.add(umap.get("user").toString());
+										
+										groups.add(map.get("name").toString());
+										
+										properties.setGroupName(groups);
+
+										properties.setUsers(us);
+										
+										//statement.setAction(action);
+										
+										//statement.setEffect(effect);
+										
+										//statement.setResource(resource);
+										
+										statements.add(statement);
+										
+										policyDocument.setStatement(statements);
+										
+										properties.setPolicyDocument(policyDocument);
+										
+
+										policy.setProperties(properties);
+
+									}
+
+								}
+
+							}
+
+						}
+					}
+				}
+			}
+		}
+
+		return policy;
+
+	}
+
 	/**
 	 * Sets the up policy.
 	 *
 	 * @param map the map
 	 * @return the array list
 	 */
-	private static ArrayList<Policy> setUpPolicy(HashMap map) {
-		
+	private static ArrayList<com.cleantips.iam.group.model.Policy> setUpPolicy(HashMap map) {
 
-		ArrayList<Policy> policyList = new ArrayList();
-		
-		Policy policy = new Policy();
-		
+		ArrayList<com.cleantips.iam.group.model.Policy> policyList = new ArrayList();
+
+		com.cleantips.iam.group.model.Policy policy = new com.cleantips.iam.group.model.Policy();
+
 		policy.setPolicyDocument(setUpPolicyDocument(map));
-		
+
 		policy.setPolicyName(map.get("policyName").toString());
-		
+
 		policyList.add(policy);
-		
+
 		return policyList;
-		
+
 	}
-	
+
 	/**
 	 * Sets the up policy document.
 	 *
 	 * @param map the map
 	 * @return the policy document
 	 */
-	private static PolicyDocument setUpPolicyDocument(HashMap map) {
-		
-		PolicyDocument policyDocument = new PolicyDocument();
-		
-		ArrayList<Statement> statementList = new ArrayList();
-		
-		Statement statement = new Statement();
-		
-		//statement.setAction(action);
-		
-		//statement.setEffect(effect);
+	private static com.cleantips.iam.group.model.PolicyDocument setUpPolicyDocument(HashMap map) {
+
+		com.cleantips.iam.group.model.PolicyDocument policyDocument = new com.cleantips.iam.group.model.PolicyDocument();
+
+		ArrayList<com.cleantips.iam.group.model.Statement> statementList = new ArrayList();
+
+		com.cleantips.iam.group.model.Statement statement = new com.cleantips.iam.group.model.Statement();
+
+		// statement.setAction(action);
+
+		// statement.setEffect(effect);
 
 		statementList.add(statement);
-		
+
 		policyDocument.setStatement(statementList);
-		
+
 		return policyDocument;
-		
+
 	}
 
 	/**
 	 * Gets the bucket location where the template is stored.
 	 *
-	 * @param map    the map
-	 * @param file   the file
-	 * @param type   the type
+	 * @param map  the map
+	 * @param file the file
+	 * @param type the type
 	 * @return the bucket location
 	 */
 	@SuppressWarnings({ "rawtypes", "unused" })
@@ -164,7 +447,7 @@ public class Util {
 				bucketLocation = s3.getUrl(finalBucketName, type).toExternalForm();
 
 			} else {
-				
+
 				bucketLocation = null;
 			}
 

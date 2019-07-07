@@ -1,4 +1,4 @@
-package com.cleantips.iam.group.model;
+package com.cleantips.iam.policy.model;
 
 import java.util.ArrayList;
 

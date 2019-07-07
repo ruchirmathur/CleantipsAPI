@@ -1,5 +1,7 @@
 package com.cleantips.iam.base.model;
 
+import java.util.HashMap;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
@@ -16,9 +18,6 @@ public class Template {
 	private Mappings Mappings;
 	private Conditions Conditions;
 	private Transform Transform;
-	private Resources Resources;
-	private Outputs Outputs;
-
 	public Resources getResources() {
 		return Resources;
 	}
@@ -26,6 +25,13 @@ public class Template {
 	public void setResources(Resources resources) {
 		Resources = resources;
 	}
+
+	private Resources Resources;
+	
+
+	private Outputs Outputs;
+
+	
 	@JsonProperty("AWSTemplateFormatVersion")
 	public String getAWSTemplateFormatVersion() {
 		return AWSTemplateFormatVersion;
