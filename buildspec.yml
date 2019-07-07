@@ -4,12 +4,12 @@ env:
     JAVA_HOME: "/usr/lib/jvm/java-8-openjdk-amd64"
 phases:
   install:
-      runtime-versions:
-      java: openjdk8
+    runtime-versions:
+       java: openjdk8
     commands:
-    - echo installing maven...
-    - apt-get update -y
-    - apt-get install -y maven
+       - echo installing maven...
+       - apt-get update -y
+       - apt-get install -y maven
   build:
     commands:
     - echo building the CleantipsAPI
