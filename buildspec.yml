@@ -6,8 +6,10 @@ phases:
   install:
     runtime-versions:
        java: openjdk8
+       docker: 18
     commands:
        - echo installing maven...
+       - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
        - apt-get update -y
        - apt-get install -y maven
   build:
