@@ -8,7 +8,7 @@ phases:
        java: openjdk8
        docker: 18
     commands:
-       - echo installing maven...
+       - echo installing maven and all other dependencies...
        - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
        - apt-get update -y
        - apt-get install -y maven
