@@ -15,7 +15,7 @@ phases:
   build:
     commands:
     - echo building the CleantipsAPI
-    - mvn install dockerfile:build
+    - mvn package dockerfile:build
 artifacts:
   files:
   - target/*.jar
