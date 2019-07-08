@@ -2,7 +2,6 @@ version: 0.2
 env:
   variables:
     JAVA_HOME: "/usr/lib/jvm/java-8-openjdk-amd64"
-    AWS_ACCOUNT_ID: ${CODEBUILD_WEBHOOK_ACTOR_ACCOUNT_ID}
 phases:
   install:
     runtime-versions:
@@ -11,6 +10,7 @@ phases:
     commands:
        - echo installing maven and all other dependencies...
        - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+       - export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --output text --query 'Account')
        - apt-get update -y
        - apt-get install -y maven
   build:
