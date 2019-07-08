@@ -57,6 +57,7 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<docker.image.prefix>springio</docker.image.prefix>
+		<aws.account.id>${env.AWS_ACCOUNT_ID}</aws.account.id>
 	</properties>
 	<build>
 		<plugins>
@@ -79,7 +80,7 @@
                 <artifactId>dockerfile-maven-plugin</artifactId>
                 <version>1.4.9</version>
                 <configuration>
-                    <repository>>${aws_account_id}.dkr.ecr.us-west-2.amazonaws.com/test</repository>
+                    <repository>${aws.account.id}.dkr.ecr.us-west-2.amazonaws.com/test</repository>
                 </configuration>
             </plugin>
               <plugin>
