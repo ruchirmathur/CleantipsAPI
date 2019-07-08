@@ -16,7 +16,7 @@ phases:
     commands:
     - echo building the CleantipsAPI
     - export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --output text --query 'Account')
-    - $ mvn package dockerfile:build
+    - mvn package dockerfile:build
     - mvn deploy
 artifacts:
   files:
