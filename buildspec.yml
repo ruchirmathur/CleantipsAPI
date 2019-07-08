@@ -2,7 +2,7 @@ version: 0.2
 env:
   variables:
     JAVA_HOME: "/usr/lib/jvm/java-8-openjdk-amd64"
-    AWS_ACCOUNT_ID: "AWS_ACCOUNT_ID"
+    AWS_ACCOUNT_ID: ${CODEBUILD_WEBHOOK_ACTOR_ACCOUNT_ID}
 phases:
   install:
     runtime-versions:
