@@ -9,13 +9,14 @@ phases:
        docker: 18
     commands:
        - echo installing maven and all other dependencies...
-       - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-       - export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --output text --query 'Account')
        - apt-get update -y
        - apt-get install -y maven
   build:
     commands:
     - echo building the CleantipsAPI
+    - $ mvn package dockerfile:build
+    - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+    - export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --output text --query 'Account')
     - mvn deploy
 artifacts:
   files:
