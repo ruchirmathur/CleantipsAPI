@@ -11,11 +11,11 @@ phases:
        - echo installing maven and all other dependencies...
        - apt-get update -y
        - apt-get install -y maven
+       - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+       - $ mvn package dockerfile:build
   build:
     commands:
     - echo building the CleantipsAPI
-    - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-    - $ mvn install dockerfile:build
     - export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --output text --query 'Account')
     - mvn deploy
 artifacts:
