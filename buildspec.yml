@@ -11,10 +11,12 @@ phases:
        - echo installing maven and all other dependencies...
        - export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --output text --query 'Account')
        - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-       - docker build -t cleantips .
-       - docker tag cleantips $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
        - apt-get update -y
-       - apt-get install -y maven
+       - apt-get install -y maven    
+  pre_build:
+    commands:
+      - docker build -t cleantips .
+      - docker tag cleantips $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
   build:
     commands:
     - echo building the CleantipsAPI
