@@ -10,7 +10,7 @@ phases:
     commands:
        - echo installing maven and all other dependences...
        - export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --output text --query 'Account')
-       - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
+       - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
        - apt-get update -y
        - apt-get install -y maven    
   pre_build:
