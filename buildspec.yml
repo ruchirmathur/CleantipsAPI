@@ -19,7 +19,7 @@ phases:
       - docker tag cleantips $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
   build:
     commands:
-    - echo building the CleantipsAPI
+    - echo building CleantipsAPI
     - mvn package dockerfile:build
     - mvn deploy
 artifacts:
