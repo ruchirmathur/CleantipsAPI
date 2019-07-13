@@ -10,6 +10,7 @@ phases:
     commands:
        - echo installing maven and all other dependencies...
        - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+       - $(aws ecr create-repository --repository-name cleantips/cleantipsapi)
        - apt-get update -y
        - apt-get install -y maven
   build:
