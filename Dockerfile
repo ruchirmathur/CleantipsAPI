@@ -1,4 +1,5 @@
 FROM openjdk:8-jdk-alpine
-VOLUME /tmp
-COPY target/*.jar
-ENTRYPOINT ["java","-jar","/cleantipsapi.jar"]
+COPY ./target/cleantipsapi.jar /usr/app/
+WORKDIR /usr/app
+RUN sh -c 'touch cleantipsapi.jar'
+ENTRYPOINT ["java","-jar","cleantipsapi.jar"]  
