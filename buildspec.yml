@@ -8,7 +8,7 @@ phases:
        java: openjdk8
        docker: 18
     commands:
-       - echo installing maven and all other dependences...
+       - echo installing maven and all other dependences..
        - export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --output text --query 'Account')
        - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
        - apt-get update -y
