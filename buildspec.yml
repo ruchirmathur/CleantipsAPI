@@ -18,7 +18,7 @@ phases:
   build:
     commands:
     - echo building CleantipsAPI
-    - docker run -p 8080:8080 -t cleantips/cleantipsapi:1.0.0
+    - docker run -p 8080:8080 -t 1.0.0
 artifacts:
   files:
   - target/*.jar
