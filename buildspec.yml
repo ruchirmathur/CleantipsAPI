@@ -18,7 +18,7 @@ phases:
   build:
     commands:
     - echo building CleantipsAPI
-    - docker run -p 8080:8080 -t 1.0.0
+    - docker run -p 8080:8080 -t $AWS_ACCOUNT_ID.dkr.ecr.us-west-2.amazonaws.com/cleantips/cleantipsapi
 artifacts:
   files:
   - target/*.jar
