@@ -17,17 +17,6 @@
 			<version>1.11.571</version>
 			<scope>compile</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>amazon-kinesis-client</artifactId>
-			<version>1.2.1</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.github.awslabs</groupId>
-			<artifactId>aws-request-signing-apache-interceptor</artifactId>
-			<version>b3772780da</version>
-		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -37,11 +26,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
         <groupId>org.elasticsearch</groupId>
@@ -80,7 +64,7 @@
                 <artifactId>dockerfile-maven-plugin</artifactId>
                 <version>1.4.10</version>
                 <configuration>
-                    <repository>${aws.account.id}.dkr.ecr.us-west-2.amazonaws.com/cleantips/cleantipsapi</repository>
+                    <repository>${aws.account.id}.dkr.ecr.us-west-2.amazonaws.com/cleantipsapi</repository>
                     <tag>${project.version}</tag>
                     <buildArgs>
                         <JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
@@ -121,10 +105,4 @@
             </plugin>
 		</plugins>
 	</build>
-	<repositories>
-		<repository>
-			<id>jitpack.io</id>
-			<url>https://jitpack.io</url>
-		</repository>
-	</repositories>
 </project>
