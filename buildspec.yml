@@ -18,7 +18,6 @@ phases:
   pre_build:
     commands:
       - mvn install dockerfile:build 
-      - docker build -t cleantips .
       - docker tag cleantips $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
   build:
     commands:
