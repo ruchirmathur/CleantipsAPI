@@ -22,7 +22,7 @@ phases:
   build:
     commands:
     - echo building CleantipsAPI
-    - mvn package dockerfile:build
+    - mvn package docker:build 
     - mvn deploy
 artifacts:
   files:
