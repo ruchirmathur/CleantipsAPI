@@ -10,17 +10,20 @@ phases:
     commands:
        - echo installing maven and all other dependences..
        - export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --output text --query 'Account')
-       - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)  
+       - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.us-west-2.amazonaws.com/cleantips/cleantipsapi
+       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
   pre_build:
     commands:
-
       - mvn install dockerfile:build 
   build:
     commands:
     - echo building CleantipsAPI
-    - docker run -p 8080:8080 -t $AWS_ACCOUNT_ID.dkr.ecr.us-west-2.amazonaws.com/cleantips/cleantipsapi:1.0.0
+    - echo Writing image definitions file...
+    - printf '[{"name":"cleantipsapi","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 artifacts:
-  files:
+  files:imagedefinitions.json
   - target/*.jar
   discard-paths: yes
 cache:
