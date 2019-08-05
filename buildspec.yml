@@ -20,7 +20,7 @@ phases:
   build:
     commands:
     - echo building CleantipsAPI
-    - echo Writing image definitions file.
+    - echo Writing image definitions file
     - printf '[{"name":"%s","imageUri":"%s"}]' cleantipsapi $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 artifacts:
   files:
