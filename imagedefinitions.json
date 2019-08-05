@@ -1,6 +1,6 @@
 {
   "taskDefinition": {
-    "family": "cleantipsapi",
+    "family": "CleantipsTask",
     "containerDefinitions": [
       {
         "name": "cleantips/cleantipsapi",
