@@ -11,7 +11,7 @@ phases:
        - echo installing maven and all other dependences.
        - export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --output text --query 'Account')
        - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.us-west-2.amazonaws.com/cleantips/cleantipsapi
+       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.us-west-2.amazonaws.com/cleantipsapi
        - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
        - IMAGE_TAG=${COMMIT_HASH:=latest}
   pre_build:
@@ -21,7 +21,7 @@ phases:
     commands:
     - echo building CleantipsAPI
     - echo Writing image definitions file.
-    - printf '[{"name":"%s","imageUri":"%s"}]' cleantips/cleantipsapi $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+    - printf '[{"name":"%s","imageUri":"%s"}]' cleantipsapi $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 artifacts:
   files:
   - imagedefinitions.json
