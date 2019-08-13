@@ -3,8 +3,8 @@
     "family": "CleantipsTask",
     "containerDefinitions": [
       {
-        "name": "cleantips/cleantipsapi",
-        "image": "$AWS_ACCOUNT_ID.dkr.ecr.us-west-2.amazonaws.com/cleantips/cleantipsapi",
+        "name": "cleantipsapi",
+        "image": "$AWS_ACCOUNT_ID.dkr.ecr.us-west-2.amazonaws.com/cleantipsapi",
         "cpu": 100,
         "portMappings": [
           {
