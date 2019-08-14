@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import org.apache.http.HttpHost;
+import org.apache.http.HttpRequestInterceptor;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -28,7 +29,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.amazonaws.auth.AWS4Signer;
 import com.amazonaws.util.StringUtils;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.cleantips.api.model.ArchitectureSearchRequest;
 import com.cleantips.api.model.ArchitectureSearchResponse;
 import com.cleantips.api.model.GenerateTemplateRequest;
@@ -48,6 +52,8 @@ public class CleanTipsController {
 
 	@Value("${default.region}")
 	private String defaultRegion;
+	
+	 static final AWSCredentialsProvider credentialsProvider = new DefaultAWSCredentialsProviderChain();
 
 	/**
 	 * 
@@ -125,8 +131,8 @@ public class CleanTipsController {
 
 		String suggestText = null;
 
-		RestHighLevelClient restClient = new RestHighLevelClient(
-				RestClient.builder(HttpHost.create(elasticSearchEndPoint)));
+		System.out.println("test the url:::"+elasticSearchEndPoint);
+		RestHighLevelClient restClient = esClient(elasticSearchEndPoint,"us-west-2","es"); 
 
 		SearchRequest searchRequest = new SearchRequest(index);
 
@@ -211,4 +217,12 @@ public class CleanTipsController {
 		return generateTemplateResponse;
 
 	}
+	
+	public static RestHighLevelClient esClient(String elasticSearchEndPoint, String region, String serviceName) {
+        AWS4Signer signer = new AWS4Signer();
+        signer.setServiceName(serviceName);
+        signer.setRegionName(region);
+        HttpRequestInterceptor interceptor = new SigningInterceptor(serviceName, signer, credentialsProvider);
+        return new RestHighLevelClient(RestClient.builder(HttpHost.create(elasticSearchEndPoint)).setHttpClientConfigCallback(hacb -> hacb.addInterceptorLast(interceptor)));
+    }
 }
