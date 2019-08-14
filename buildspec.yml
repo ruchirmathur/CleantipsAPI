@@ -19,7 +19,7 @@ phases:
       - mvn install dockerfile:build 
   build:
     commands:
-    - echo building CleantipsAPI
+    - echo build
     - echo Writing image
     - printf '[{"name":"%s","imageUri":"%s"}]' cleantipsapi $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 artifacts:
