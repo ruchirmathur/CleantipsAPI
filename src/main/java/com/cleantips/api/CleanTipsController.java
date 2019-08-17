@@ -68,7 +68,7 @@ public class CleanTipsController {
 	 * @throws InvocationTargetException
 	 * @throws IOException
 	 */
-	@RequestMapping(value = "/generateTemplates", method = RequestMethod.POST)
+	@RequestMapping(value = "/template", method = RequestMethod.POST, produces="application/json")
 	public GenerateTemplateResponse generateTemplates(@RequestBody GenerateTemplateRequest inputPayload)
 			throws NoSuchMethodException, SecurityException, ClassNotFoundException, InstantiationException,
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException, IOException {
@@ -104,7 +104,7 @@ public class CleanTipsController {
 	 * @throws InvocationTargetException
 	 */
 	@CrossOrigin(origins = "*")
-	@RequestMapping(value = "/getApplicationServicesv1", method = RequestMethod.POST)
+	@RequestMapping(value = "/services", method = RequestMethod.POST,produces="application/json")
 	public ArrayList<ArchitectureSearchResponse> getApplicationServicesV1(
 			@RequestBody ArchitectureSearchRequest inputPayload)
 			throws JsonProcessingException, NoSuchMethodException, SecurityException, ClassNotFoundException,
