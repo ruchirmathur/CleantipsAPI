@@ -101,7 +101,7 @@ public class CleanTipsController {
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 * @throws IllegalArgumentException
-	 * @throws InvocationTargetException
+	 * @throws InvocationTargetExceptio
 	 */
 	@CrossOrigin(origins = "*")
 	@RequestMapping(value = "/services", method = RequestMethod.POST,produces="application/json")
