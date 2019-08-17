@@ -68,7 +68,7 @@ public class CleanTipsController {
 	 * @throws InvocationTargetException
 	 * @throws IOException
 	 */
-	@RequestMapping(value = "/template", method = RequestMethod.POST, produces="application/json")
+	@RequestMapping(value = "/templates", method = RequestMethod.POST, produces="application/json")
 	public GenerateTemplateResponse generateTemplates(@RequestBody GenerateTemplateRequest inputPayload)
 			throws NoSuchMethodException, SecurityException, ClassNotFoundException, InstantiationException,
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException, IOException {
