@@ -80,14 +80,6 @@ public class DistributionConfig {
 		HttpVersion = httpVersion;
 	}
 
-	public boolean isIPV6Enabled() {
-		return IPV6Enabled;
-	}
-
-	public void setIPV6Enabled(boolean iPV6Enabled) {
-		IPV6Enabled = iPV6Enabled;
-	}
-
 	public Logging getLogging() {
 		return Logging;
 	}
@@ -96,12 +88,13 @@ public class DistributionConfig {
 		Logging = logging;
 	}
 
-	public ArrayList<Origins> getOrigin() {
-		return Origin;
+
+	public ArrayList<Origin> getOrigins() {
+		return Origins;
 	}
 
-	public void setOrigin(ArrayList<Origins> origin) {
-		Origin = origin;
+	public void setOrigins(ArrayList<Origin> origins) {
+		Origins = origins;
 	}
 
 	public String getPriceClass() {
@@ -138,9 +131,8 @@ public class DistributionConfig {
 
 	private boolean Enabled;
 	private String HttpVersion;
-	private boolean IPV6Enabled;
 	private Logging Logging;
-	private ArrayList<Origins> Origin;
+	private ArrayList<Origin> Origins;
 	private String PriceClass;
 	private Restrictions Restrictions;
 	private ViewerCertificate ViewerCertificate;

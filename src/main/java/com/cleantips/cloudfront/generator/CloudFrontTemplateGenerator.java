@@ -3,6 +3,7 @@ package com.cleantips.cloudfront.generator;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.cleantips.cloudfront.base.model.Parameters;
 import com.cleantips.cloudfront.base.model.Resources;
@@ -12,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CloudFrontTemplateGenerator {
 
-	public HashMap execute(HashMap map,String type) throws IOException {
+	public HashMap execute(ConcurrentHashMap map,String type,HashMap paramMap) throws IOException {
 		System.out.println("In CT");
 		String region = "us-east-1a";
 		
@@ -24,9 +25,9 @@ public class CloudFrontTemplateGenerator {
 		
 		generateDescription(template,map);
 		
-		generateParameters(template,region,map);
+		generateParameters(template,region,map,paramMap);
 
-		generateResources(template,region,map);
+		generateResources(template,region,map,paramMap);
 
 		//template = generateMappings(template);
 
@@ -50,6 +51,8 @@ public class CloudFrontTemplateGenerator {
 		
 		System.out.println(output.get("TemplateUrl").toString());
 		
+		output.put("Service", "Cloudfront");
+		
 		return output;
 
 	}
@@ -59,15 +62,20 @@ public class CloudFrontTemplateGenerator {
 		template.setAWSTemplateFormatVersion("2010-09-09");
 
 	}
-	private static void generateDescription(Template template, HashMap map) {
+	private static void generateDescription(Template template, ConcurrentHashMap map) {
 
 		template.setDescription(map.get("architecture").toString());
 
 	}
 
-	private static void generateParameters(Template template, String region, HashMap map) {
+	private static void generateParameters(Template template, String region, ConcurrentHashMap map,HashMap paramMap) {
 
-		Parameters parameters = new Parameters();
+		HashMap parameters = new HashMap();
+		
+		paramMap.remove("Service");
+		
+		parameters = paramMap;
+		
 		
 		template.setParameters(parameters);
 
@@ -81,9 +89,9 @@ public class CloudFrontTemplateGenerator {
 
 	}
 
-	private static <T> void generateResources(Template template,String regionName, HashMap map) {
+	private static <T> void generateResources(Template template,String regionName, ConcurrentHashMap map,HashMap paramMap) {
 		
-		Distribution distribution = Util.createDistribution(map, regionName);
+		Distribution distribution = Util.createDistribution(map, regionName,paramMap);
 	
 		Resources resources= new Resources();
 		

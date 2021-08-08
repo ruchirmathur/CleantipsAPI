@@ -57,12 +57,6 @@ public AccelerateConfiguration getAccelerateConfiguration() {
 	public void setLifecycleConfiguration(LifecycleConfiguration lifecycleConfiguration) {
 		LifecycleConfiguration = lifecycleConfiguration;
 	}
-	public com.cleantips.s3.bucket.model.LifecycleConfiguration getLoggingConfiguration() {
-		return LoggingConfiguration;
-	}
-	public void setLoggingConfiguration(com.cleantips.s3.bucket.model.LifecycleConfiguration loggingConfiguration) {
-		LoggingConfiguration = loggingConfiguration;
-	}
 	public ArrayList<MetricsConfiguration> getMetricsConfigurations() {
 		return MetricsConfigurations;
 	}
@@ -99,12 +93,6 @@ public AccelerateConfiguration getAccelerateConfiguration() {
 	public void setReplicationConfiguration(ReplicationConfiguration replicationConfiguration) {
 		ReplicationConfiguration = replicationConfiguration;
 	}
-	public ArrayList<com.cleantips.cloudfront.distribution.model.Tags> getTags() {
-		return Tags;
-	}
-	public void setTags(ArrayList<com.cleantips.cloudfront.distribution.model.Tags> tags) {
-		Tags = tags;
-	}
 	public VersioningConfiguration getVersioningConfiguration() {
 		return VersioningConfiguration;
 	}
@@ -125,14 +113,12 @@ private String BucketName;
 private CorsConfiguration CorsConfiguration;
 private ArrayList<InventoryConfiguration> InventoryConfigurations;
 private LifecycleConfiguration LifecycleConfiguration;
-private com.cleantips.s3.bucket.model.LifecycleConfiguration LoggingConfiguration;
 private ArrayList<MetricsConfiguration> MetricsConfigurations;
 private NotificationConfiguration NotificationConfiguration;
 private ObjectLockConfiguration ObjectLockConfiguration;
 private boolean ObjectLockEnabled;
 private PublicAccessBlockConfiguration PublicAccessBlockConfiguration;
 private ReplicationConfiguration ReplicationConfiguration;
-private ArrayList<com.cleantips.cloudfront.distribution.model.Tags> Tags;
 private VersioningConfiguration VersioningConfiguration;
 private WebsiteConfiguration WebsiteConfiguration;
 

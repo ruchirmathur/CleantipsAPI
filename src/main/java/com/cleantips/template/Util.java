@@ -56,7 +56,7 @@ public class Util {
 
 		String bucketName = "Stack";
 
-		String finalBucketName = "matchmystack";
+		String finalBucketName = type;
 
 		System.out.println("bucker nme::::" + finalBucketName);
 

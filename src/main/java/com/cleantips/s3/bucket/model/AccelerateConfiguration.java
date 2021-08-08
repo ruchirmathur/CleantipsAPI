@@ -8,13 +8,14 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategy.PascalCaseStrategy.class)
 public class AccelerateConfiguration {
-private String AccessControlTranslation;
+private String AccelerationStatus;
 
-public String getAccessControlTranslation() {
-	return AccessControlTranslation;
+public String getAccelerationStatus() {
+	return AccelerationStatus;
 }
 
-public void setAccessControlTranslation(String accessControlTranslation) {
-	AccessControlTranslation = accessControlTranslation;
+public void setAccelerationStatus(String accelerationStatus) {
+	AccelerationStatus = accelerationStatus;
 }
+
 }

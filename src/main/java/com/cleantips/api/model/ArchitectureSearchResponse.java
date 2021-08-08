@@ -14,6 +14,36 @@ public class ArchitectureSearchResponse {
 
 	/** The architecture. */
 	private String architecture;
+	
+	private String id;
+	
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	private String architectureImage;
+	
+	private ArrayList<Suggest> suggest;
+
+	public ArrayList<Suggest> getSuggest() {
+		return suggest;
+	}
+
+	public void setSuggest(ArrayList<Suggest> suggest) {
+		this.suggest = suggest;
+	}
+
+	public String getArchitectureImage() {
+		return architectureImage;
+	}
+
+	public void setArchitectureImage(String architectureImage) {
+		this.architectureImage = architectureImage;
+	}
 
 	/** The app services. */
 	private ArrayList<Services> appServices;

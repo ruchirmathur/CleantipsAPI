@@ -3,6 +3,8 @@ package com.cleantips.cloudfront.generator;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.amazonaws.services.ec2.AmazonEC2;
 import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
@@ -14,6 +16,7 @@ import com.amazonaws.services.ec2.model.Region;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.cleantips.vpc.eip.model.EIP;
@@ -22,14 +25,14 @@ import com.cleantips.cloudfront.distribution.model.*;
 public class Util {
 
 	@SuppressWarnings("unused")
-	public static Distribution createDistribution(HashMap map,String regionName) {
+	public static Distribution createDistribution(ConcurrentHashMap map,String regionName,HashMap paramMap) {
 		
 		Distribution distribution = null ;
 		try {
 		System.out.println("In createDistribution");
 		 distribution = new Distribution();
 
-		Properties properties = generateDistributionProperties(distribution, regionName,map);
+		Properties properties = generateDistributionProperties(distribution, regionName,map,paramMap);
 		
 		distribution.setProperties(properties);
 		
@@ -43,25 +46,25 @@ public class Util {
 
 	}
 
-	private static Properties generateDistributionProperties(Distribution distribution, String regionName, HashMap map) {
+	private static Properties generateDistributionProperties(Distribution distribution, String regionName, ConcurrentHashMap map,HashMap paramMap) {
 		System.out.println("In generateDistributionProperties");
 		Properties properties = new Properties();
 
-		properties.setDistributionConfig(createDistributionConfig(regionName,map));
+		properties.setDistributionConfig(createDistributionConfig(regionName,map, paramMap));
 
-		properties.setTag(createTags());
+		//properties.setTag(createTags());
 		
 		return properties;
 
 	}
 	@SuppressWarnings("unused")
-	public static DistributionConfig createDistributionConfig(String regionName, HashMap map) {
+	public static DistributionConfig createDistributionConfig(String regionName, ConcurrentHashMap map,HashMap paramMap) {
 
 		DistributionConfig distributionConfig = new DistributionConfig();
 
 		//distributionConfig.setAliases(aliases);
 		
-		distributionConfig.setCacheBehaviors(createCacheBehavior(map));
+		distributionConfig.setCacheBehaviors(createCacheBehavior(map, paramMap));
 		
 		distributionConfig.setComment("S3 Cloudfront distro set up");
 		
@@ -75,11 +78,10 @@ public class Util {
 		
 		distributionConfig.setHttpVersion("http2");
 		
-		distributionConfig.setIPV6Enabled(false);
 		
 		distributionConfig.setLogging(null);
 		
-		distributionConfig.setOrigin(createOrigin());
+		distributionConfig.setOrigins(createOrigin());
 		
 		distributionConfig.setPriceClass("PriceClass_All");
 		
@@ -114,13 +116,13 @@ public class Util {
 		
 		CustomErrorResponses customErrorResponse = new CustomErrorResponses();
 		
-		customErrorResponse.setErrorCachingMinTTL(2);
+		customErrorResponse.setErrorCachingMinTTL(20);
 		
 		customErrorResponse.setErrorCode(404);
 		
-		customErrorResponse.setResponseCode(200);
+		customErrorResponse.setResponseCode(404);
 		
-		customErrorResponse.setResponsePagePath("");
+		customErrorResponse.setResponsePagePath("/4xx-errors/403-forbidden.html");
 		
 		customErrorResponses.add(customErrorResponse);
 		
@@ -128,13 +130,19 @@ public class Util {
 		
 	}
 	
-	public static ArrayList<CacheBehaviors> createCacheBehavior(HashMap map) {
+	public static ArrayList<CacheBehaviors> createCacheBehavior(ConcurrentHashMap map,HashMap paramMap) {
 
 		ArrayList<CacheBehaviors> cacheBehaviors = new ArrayList();
 		
+		ForwardedValues forwardedValues= new ForwardedValues();
+		
 		CacheBehaviors cacheBehavior = new CacheBehaviors();
 		
+		if (map.get("allowedMethods")!=null) {
+		
 		cacheBehavior.setAllowedMethods((ArrayList) map.get("allowedMethods"));
+		
+		}
 
 		cacheBehavior.setCompress(false);
 		
@@ -142,7 +150,9 @@ public class Util {
 		
 		//cacheBehavior.setFieldLevelEncryptionId(fieldLevelEncryptionId);
 		
-		//cacheBehavior.setForwardedValues(forwardedValues);
+		forwardedValues.setQueryString(false);
+		
+		cacheBehavior.setForwardedValues(forwardedValues);
 		
 		//cacheBehavior.setLambdaFunctionAssociations(lambdaFunctionAssociations);
 		
@@ -152,9 +162,19 @@ public class Util {
 
 		cacheBehavior.setPathPattern("*");
 		
+		if (map.get("smoothStreaming")!=null) {
+		
 		cacheBehavior.setSmoothStreaming((boolean) map.get("smoothStreaming"));
 		
-		cacheBehavior.setTargetOriginId(null);
+		}
+		//for (Entry<?, ?> entry : paramMap.) {
+			//System.out.println("test:::::"+entry.getKey());
+		//}
+		
+		
+		Ref target=new Ref();
+		target.setRef("Bucket");
+		cacheBehavior.setTargetOriginId(target);
 		
 		//cacheBehavior.setTrustedSigners(trustedSigners);
 		
@@ -166,12 +186,18 @@ public class Util {
 
 	}
 	
-	public static DefaultCacheBehavior createDefaultCacheBehavior(HashMap map) {
+	public static DefaultCacheBehavior createDefaultCacheBehavior(ConcurrentHashMap map) {
 
 		
 		DefaultCacheBehavior cacheBehavior = new DefaultCacheBehavior();
 		
+		ForwardedValues forwardedValues= new ForwardedValues();
+		
+		if (map.get("allowedMethods")!=null) {
+		
 		cacheBehavior.setAllowedMethods((ArrayList) map.get("allowedMethods"));
+		
+		}
 
 		cacheBehavior.setCompress(false);
 		
@@ -179,43 +205,59 @@ public class Util {
 		
 		//cacheBehavior.setFieldLevelEncryptionId(fieldLevelEncryptionId);
 		
-		//cacheBehavior.setForwardedValues(forwardedValues);
+		forwardedValues.setQueryString(false);
+		
+		cacheBehavior.setForwardedValues(forwardedValues);
 		
 		//cacheBehavior.setLambdaFunctionAssociations(lambdaFunctionAssociations);
 		
 		cacheBehavior.setMaxTTL(120);
 		
 		cacheBehavior.setMinTTL(20);
+
+		//cacheBehavior.setPathPattern("*");
+		
+		if (map.get("smoothStreaming")!=null) {
 		
 		cacheBehavior.setSmoothStreaming((boolean) map.get("smoothStreaming"));
 		
-		cacheBehavior.setTargetOriginId(null);
+		}
+		//for (Entry<?, ?> entry : paramMap.) {
+			//System.out.println("test:::::"+entry.getKey());
+		//}
+		
+		
+		Ref target=new Ref();
+		target.setRef("Bucket");
+		cacheBehavior.setTargetOriginId(target);
 		
 		//cacheBehavior.setTrustedSigners(trustedSigners);
 		
 		cacheBehavior.setViewerProtocolPolicy("allow-all");
-
+		
 		return cacheBehavior;
-
 	}
 	
-	public static ArrayList<Origins> createOrigin() {
+	public static ArrayList<Origin> createOrigin() {
 
-		ArrayList<Origins> origins = new ArrayList();
+		ArrayList<Origin> origins = new ArrayList();
 		
-		Origins origin = new Origins();
+		Origin origin = new Origin();
 		
 		origin.setCustomOriginConfig(createCustomOriginConfig());
 		
-		origin.setDomainName("");
+		origin.setDomainName("myawsbucket.s3.amazonaws.com");
 		
-		origin.setId("");
+		Ref target=new Ref();
+		target.setRef("Bucket");
+		
+		origin.setId(target);
 		
 		//origin.setOriginCustomHeaders(originCustomHeaders);
 		
 		//origin.setOriginPath(originPath);
 		
-		origin.setS3OriginConfig(createS3OriginConfig());
+		//origin.setS3OriginConfig(createS3OriginConfig());
 		
 		origins.add(origin);
 
@@ -226,9 +268,9 @@ public class Util {
 
 		CustomOriginConfig customOriginConfig = new CustomOriginConfig();
 
-		customOriginConfig.setHTTPPort(80);
+		//customOriginConfig.setHTTPPort(80);
 		
-		customOriginConfig.setHTTPSPort(443);
+		//customOriginConfig.setHTTPSPort(443);
 		
 		customOriginConfig.setOriginKeepaliveTimeout(30);
 		
@@ -245,7 +287,7 @@ public class Util {
 
 		S3OriginConfig s3OriginConfig = new S3OriginConfig();
 		
-		s3OriginConfig.setOriginAccessIdentity("");
+		//s3OriginConfig.setOriginAccessIdentity("");
 
 		return s3OriginConfig;
 
@@ -262,7 +304,7 @@ public class Util {
 
 	}
 
-	public static String getBucketLocation(HashMap map, String region, File file, String type) {
+	public static String getBucketLocation(ConcurrentHashMap map, String region, File file, String type) {
 
 		String bucketName = map.get("architecture").toString();
 
@@ -285,6 +327,7 @@ public class Util {
 		metadata.setContentType("plain/text");
 		metadata.addUserMetadata("x-amz-meta-title", "someTitle");
 		request.setMetadata(metadata);
+		request.setCannedAcl(CannedAccessControlList.PublicRead);
 		s3.putObject(request);
 		System.out.println("finalBucketName nme::all::" + finalBucketName);
 		String bucketLocation = s3.getUrl(finalBucketName, type).toExternalForm();

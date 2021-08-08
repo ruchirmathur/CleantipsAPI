@@ -1,5 +1,7 @@
 package com.cleantips.s3.base.model;
 
+import java.util.HashMap;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
@@ -12,7 +14,7 @@ public class Template {
 	@JsonProperty("Description")
 	private String Description;
 	private Metadata Metadata;
-	private Parameters Parameters;
+	private HashMap Parameters;
 	private Mappings Mappings;
 	private Conditions Conditions;
 	private Transform Transform;
@@ -51,16 +53,16 @@ public class Template {
 		Metadata = metadata;
 	}
 
-	public Parameters getParameters() {
+	public Mappings getMappings() {
+		return Mappings;
+	}
+
+	public HashMap getParameters() {
 		return Parameters;
 	}
 
-	public void setParameters(Parameters parameters) {
+	public void setParameters(HashMap parameters) {
 		Parameters = parameters;
-	}
-
-	public Mappings getMappings() {
-		return Mappings;
 	}
 
 	public void setMappings(Mappings mappings) {

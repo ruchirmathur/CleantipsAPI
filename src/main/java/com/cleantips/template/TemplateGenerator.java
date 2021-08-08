@@ -6,13 +6,29 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.util.StringUtils;
 
+import com.amazonaws.services.cloudformation.AmazonCloudFormation;
+import com.amazonaws.services.cloudformation.AmazonCloudFormationClientBuilder;
+import com.amazonaws.services.cloudformation.model.Capability;
+import com.amazonaws.services.cloudformation.model.CreateStackRequest;
+import com.amazonaws.services.cloudformation.model.DescribeStacksResult;
+import com.amazonaws.services.cloudformation.model.EstimateTemplateCostResult;
+import com.amazonaws.services.cloudformation.model.ValidateTemplateRequest;
+import com.amazonaws.services.cloudformation.model.ValidateTemplateResult;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.cloudformation.model.*;
 import com.cleantips.api.model.GenerateTemplateRequest;
 import com.cleantips.api.model.GenerateTemplateResponse;
 import com.cleantips.api.model.Services;
+import com.cleantips.api.model.StackProperties;
+import com.cleantips.api.model.TemplateProperties;
 import com.cleantips.model.Outputs;
 import com.cleantips.model.Parameters;
 import com.cleantips.model.Properties;
@@ -47,6 +63,14 @@ public class TemplateGenerator {
 		String bucketName = null;
 
 		ArrayList<String> bucketList = new ArrayList<String>();
+		
+		TemplateProperties templateProperties =null;
+		
+		StackProperties stackProperties = null;
+		
+		StackProperties mainStackProperties = new StackProperties();
+		
+		TemplateProperties mainTemplate =new TemplateProperties();
 
 		String json = null;
 
@@ -59,8 +83,42 @@ public class TemplateGenerator {
 				region = request.getRegion();
 
 				Template template = new Template();
+				
+				ArrayList<TemplateProperties> arr= new ArrayList();
 
 				HashMap output = createServices(request.getAppServices());
+				
+			     Iterator hashIterator = output.entrySet().iterator();
+			     
+			     while (hashIterator.hasNext()) { 
+			            Map.Entry mapElement = (Map.Entry)hashIterator.next(); 
+			            HashMap hash = ((HashMap)mapElement.getValue()); 
+			            Iterator hashIterators = hash.entrySet().iterator();
+			            System.out.println("mapElement::::::::::"+mapElement.getKey() + " : " + hash); 
+			        	templateProperties = new TemplateProperties();
+			        	stackProperties = new StackProperties();
+			        	
+			        	templateProperties.setStackName(mapElement.getKey().toString());
+			            while (hashIterators.hasNext()) { 
+			            	
+			            	Map.Entry mapElements = (Map.Entry)hashIterators.next(); 
+			            	String serviceDetails = ((String)mapElements.getValue());
+			            	
+			            
+			            	if (mapElements.getKey()!=null && mapElements.getKey().toString().equalsIgnoreCase("TemplateUrl")) {
+			            		
+			            		stackProperties.setTemplateURL(serviceDetails);
+			            	}
+			        
+			            	
+			            	
+			            	System.out.println("New::::::::::"+mapElements.getKey() + " : " + serviceDetails); 
+			            }
+			            templateProperties.setStack(stackProperties);
+			            arr.add(templateProperties);
+			        } 
+				
+
 
 				if (output != null) {
 
@@ -86,23 +144,33 @@ public class TemplateGenerator {
 
 					objectMapper.writeValue(file, template);
 
-					bucketName = Util.getBucketLocation(null, region, file, "stack");
-
-					bucketList.add(bucketName);
+					bucketName = Util.getBucketLocation(null, region, file, request.getArchitecture());
+					
+					mainStackProperties.setTemplateURL(bucketName);
+					
+					mainTemplate.setStack(mainStackProperties);
+					
+					mainTemplate.setStackName("PrimaryStack");
 
 					generateTemplateResponse.setStatus("Success");
+					
+					arr.add(mainTemplate);
 
-					generateTemplateResponse.setTemplateUrls(bucketList);
+					generateTemplateResponse.setTemplateProperties(arr);
+					
+					String costUrl = generateArchitecture(bucketName, request.getArchitecture());
+					
+					generateTemplateResponse.setCostUrl(costUrl);
 
 				} else {
 					generateTemplateResponse.setStatus("Failure");
 
-					generateTemplateResponse.setTemplateUrls(null);
+					generateTemplateResponse.setTemplateProperties(null);
 				}
 
 			} else {
 
-				generateTemplateResponse.setTemplateUrls(null);
+				generateTemplateResponse.setTemplateProperties(null);
 
 				generateTemplateResponse.setStatus("Failure");
 			}
@@ -111,6 +179,8 @@ public class TemplateGenerator {
 			ex.printStackTrace();
 
 			generateTemplateResponse.setStatus("Failure");
+			
+			generateTemplateResponse.setDescription(ex.getMessage());
 
 		}
 		return generateTemplateResponse;
@@ -243,6 +313,7 @@ public class TemplateGenerator {
 					map.put(entry.getKey(), maps);
 
 					map.remove("TemplateUrl");
+					map.remove("Service");
 
 					properties.setParameters(map);
 				}
@@ -318,6 +389,7 @@ public class TemplateGenerator {
 					map.put(entry.getKey(), valueMaps);
 
 					map.remove("TemplateUrl");
+					map.remove("Service");
 
 				}
 
@@ -346,6 +418,8 @@ public class TemplateGenerator {
 	private static HashMap<String, HashMap<?, ?>> createServices(ArrayList<Services> services) {
 
 		HashMap<String, HashMap<?, ?>> output = new HashMap<String, HashMap<?, ?>>();
+		
+		HashMap<String, HashMap> serviceParam = new HashMap<String, HashMap>();
 
 		try {
 
@@ -361,12 +435,32 @@ public class TemplateGenerator {
 
 					Object obj = cls.newInstance();
 
-					HashMap<?, ?> map = srv.getProperties();
+					ConcurrentHashMap<?, ?> map = srv.getProperties();
 
-					Method method = cls.getDeclaredMethod("execute", HashMap.class, String.class);
+					Method method = cls.getDeclaredMethod("execute", ConcurrentHashMap.class, String.class, HashMap.class);
+					
+					
+					System.out.println("srv.getType():::::"+srv.getType());
+					
+					System.out.println("srv.serviceParam():::::"+serviceParam);
 
-					HashMap<?, ?> serviceOutput = (HashMap<?, ?>) method.invoke(obj, map, srv.getType());
+					HashMap<?, ?> serviceOutput = (HashMap<?, ?>) method.invoke(obj, map, srv.getType(),serviceParam);
 
+					
+					if (serviceOutput!=null) {
+						
+						for (Entry<?, ?> entry : serviceOutput.entrySet()) {
+							System.out.println("test:::::"+entry.getKey());
+							HashMap maps = new HashMap();
+							maps.put("Type", "String");
+							maps.put("Description", "test");
+							serviceParam.put((String) entry.getKey(), maps);
+							serviceParam.remove("TemplateUrl");
+						}
+						
+						
+					}
+					
 					output.put(srv.getType().concat("Stack"), serviceOutput);
 
 				} else {
@@ -382,4 +476,19 @@ public class TemplateGenerator {
 
 	}
 
+	private static String generateArchitecture(String bucketName, String architect) {
+		
+		AmazonCloudFormation awssCFTClient = AmazonCloudFormationClientBuilder.defaultClient();
+		CreateStackRequest createStackRequest = new CreateStackRequest();
+	    createStackRequest.setStackName(architect);
+	    createStackRequest.setTemplateURL(bucketName);
+	    awssCFTClient.createStack(createStackRequest);
+	    
+	    EstimateTemplateCostRequest cost = new EstimateTemplateCostRequest();
+	    cost.setTemplateURL(bucketName);
+	    EstimateTemplateCostResult result = awssCFTClient.estimateTemplateCost(cost);
+	    System.out.println("test the cost:::"+result.getUrl());  
+	    
+	    return result.getUrl();
+	}
 }

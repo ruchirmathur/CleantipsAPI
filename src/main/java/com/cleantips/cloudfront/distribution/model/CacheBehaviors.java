@@ -17,15 +17,15 @@ public String getViewerProtocolPolicy() {
 private ArrayList<String> AllowedMethods;
 private ArrayList<String> CachedMethods;
 private boolean Compress;
-private double DefaultTTL;
+private int DefaultTTL;
 private String FieldLevelEncryptionId;
 private ForwardedValues ForwardedValues;
 private ArrayList<LambdaFunctionAssociations> LambdaFunctionAssociations;
-private double MaxTTL;
-private double MinTTL;
+private int MaxTTL;
+private int MinTTL;
 private String PathPattern;
 private boolean SmoothStreaming;
-private String TargetOriginId;
+private Ref TargetOriginId;
 private ArrayList<TrustedSigners> TrustedSigners;
 private String ViewerProtocolPolicy;
 public ArrayList<String> getAllowedMethods() {
@@ -46,10 +46,10 @@ public boolean isCompress() {
 public void setCompress(boolean compress) {
 	Compress = compress;
 }
-public double getDefaultTTL() {
+public int getDefaultTTL() {
 	return DefaultTTL;
 }
-public void setDefaultTTL(double defaultTTL) {
+public void setDefaultTTL(int defaultTTL) {
 	DefaultTTL = defaultTTL;
 }
 public String getFieldLevelEncryptionId() {
@@ -70,20 +70,26 @@ public ArrayList<LambdaFunctionAssociations> getLambdaFunctionAssociations() {
 public void setLambdaFunctionAssociations(ArrayList<LambdaFunctionAssociations> lambdaFunctionAssociations) {
 	LambdaFunctionAssociations = lambdaFunctionAssociations;
 }
-public double getMaxTTL() {
+public int getMaxTTL() {
 	return MaxTTL;
 }
-public void setMaxTTL(double maxTTL) {
+public void setMaxTTL(int maxTTL) {
 	MaxTTL = maxTTL;
 }
-public double getMinTTL() {
+public int getMinTTL() {
 	return MinTTL;
 }
-public void setMinTTL(double minTTL) {
+public void setMinTTL(int minTTL) {
 	MinTTL = minTTL;
 }
 public String getPathPattern() {
 	return PathPattern;
+}
+public Ref getTargetOriginId() {
+	return TargetOriginId;
+}
+public void setTargetOriginId(Ref targetOriginId) {
+	TargetOriginId = targetOriginId;
 }
 public void setPathPattern(String pathPattern) {
 	PathPattern = pathPattern;
@@ -93,12 +99,6 @@ public boolean isSmoothStreaming() {
 }
 public void setSmoothStreaming(boolean smoothStreaming) {
 	SmoothStreaming = smoothStreaming;
-}
-public String getTargetOriginId() {
-	return TargetOriginId;
-}
-public void setTargetOriginId(String targetOriginId) {
-	TargetOriginId = targetOriginId;
 }
 public ArrayList<TrustedSigners> getTrustedSigners() {
 	return TrustedSigners;

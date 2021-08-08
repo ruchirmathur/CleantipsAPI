@@ -1,0 +1,1 @@
+{"Resources":{"Bucket":{"Properties":{"AccelerateConfiguration":{"AccelerationStatus":"Enabled"},"ObjectLockEnabled":false,"AccessControl":"PublicRead","BucketName":"qztauolk"},"Type":"AWS::S3::Bucket"}},"Outputs":{"Bucket":{"Value":{"Ref":"Bucket"}}},"AWSTemplateFormatVersion":"2010-09-09","Description":"s3bucket"}

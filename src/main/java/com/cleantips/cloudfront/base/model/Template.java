@@ -1,5 +1,7 @@
 package com.cleantips.cloudfront.base.model;
 
+import java.util.HashMap;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
@@ -12,7 +14,15 @@ public class Template {
 	@JsonProperty("Description")
 	private String Description;
 	private Metadata Metadata;
-	private Parameters Parameters;
+	private HashMap Parameters;
+	public HashMap getParameters() {
+		return Parameters;
+	}
+
+	public void setParameters(HashMap parameters) {
+		Parameters = parameters;
+	}
+
 	private Mappings Mappings;
 	private Conditions Conditions;
 	private Transform Transform;
@@ -49,14 +59,6 @@ public class Template {
 
 	public void setMetadata(Metadata metadata) {
 		Metadata = metadata;
-	}
-
-	public Parameters getParameters() {
-		return Parameters;
-	}
-
-	public void setParameters(Parameters parameters) {
-		Parameters = parameters;
 	}
 
 	public Mappings getMappings() {

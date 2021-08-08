@@ -1,6 +1,7 @@
 package com.cleantips.api.model;
 
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The Class Services.
@@ -75,7 +76,7 @@ public void setDependentOn(String dependentOn) {
 private String dependentOn;
 
 /** The properties. */
-private HashMap<?, ?> properties;
+private ConcurrentHashMap properties;
 
 
 /**
@@ -83,7 +84,7 @@ private HashMap<?, ?> properties;
  *
  * @return the properties
  */
-public HashMap<?, ?> getProperties() {
+public ConcurrentHashMap getProperties() {
 	return properties;
 }
 
@@ -92,7 +93,7 @@ public HashMap<?, ?> getProperties() {
  *
  * @param properties the new properties
  */
-public void setProperties(HashMap<?, ?> properties) {
+public void setProperties(ConcurrentHashMap properties) {
 	this.properties = properties;
 }
 
@@ -123,4 +124,18 @@ public void setType(String type) {
 public int compareTo(Services o) {
     return this.getPriority().compareTo(o.getPriority());
 }
+
+@Override
+public boolean equals(Object obj) {
+    if (obj instanceof Services) {
+
+        return ((Services) obj).type == type;
+    }
+    return false;
+}
+@Override
+public int hashCode() {
+    return getType().hashCode();
+}
+
 }

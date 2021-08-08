@@ -29,10 +29,10 @@ public boolean isCompress() {
 public void setCompress(boolean compress) {
 	Compress = compress;
 }
-public double getDefaultTTL() {
+public int getDefaultTTL() {
 	return DefaultTTL;
 }
-public void setDefaultTTL(double defaultTTL) {
+public void setDefaultTTL(int defaultTTL) {
 	DefaultTTL = defaultTTL;
 }
 public String getFieldLevelEncryptionId() {
@@ -53,16 +53,16 @@ public ArrayList<LambdaFunctionAssociations> getLambdaFunctionAssociation() {
 public void setLambdaFunctionAssociation(ArrayList<LambdaFunctionAssociations> lambdaFunctionAssociation) {
 	LambdaFunctionAssociation = lambdaFunctionAssociation;
 }
-public double getMaxTTL() {
+public int getMaxTTL() {
 	return MaxTTL;
 }
-public void setMaxTTL(double maxTTL) {
+public void setMaxTTL(int maxTTL) {
 	MaxTTL = maxTTL;
 }
-public double getMinTTL() {
+public int getMinTTL() {
 	return MinTTL;
 }
-public void setMinTTL(double minTTL) {
+public void setMinTTL(int minTTL) {
 	MinTTL = minTTL;
 }
 public boolean isSmoothStreaming() {
@@ -70,12 +70,6 @@ public boolean isSmoothStreaming() {
 }
 public void setSmoothStreaming(boolean smoothStreaming) {
 	SmoothStreaming = smoothStreaming;
-}
-public String getTargetOriginId() {
-	return TargetOriginId;
-}
-public void setTargetOriginId(String targetOriginId) {
-	TargetOriginId = targetOriginId;
 }
 public ArrayList<String> getTrustedSigners() {
 	return TrustedSigners;
@@ -86,17 +80,23 @@ public void setTrustedSigners(ArrayList<String> trustedSigners) {
 public String getViewerProtocolPolicy() {
 	return ViewerProtocolPolicy;
 }
+public Ref getTargetOriginId() {
+	return TargetOriginId;
+}
+public void setTargetOriginId(Ref targetOriginId) {
+	TargetOriginId = targetOriginId;
+}
 public void setViewerProtocolPolicy(String viewerProtocolPolicy) {
 	ViewerProtocolPolicy = viewerProtocolPolicy;
 }
-private double DefaultTTL;
+private int DefaultTTL;
 private String FieldLevelEncryptionId;
 private ForwardedValues ForwardedValues;
 private ArrayList<LambdaFunctionAssociations> LambdaFunctionAssociation;
-private double MaxTTL;
-private double MinTTL;
+private int MaxTTL;
+private int MinTTL;
 private boolean SmoothStreaming;
-private String TargetOriginId;
+private Ref TargetOriginId;
 private ArrayList<String> TrustedSigners;
 private String ViewerProtocolPolicy;
 }

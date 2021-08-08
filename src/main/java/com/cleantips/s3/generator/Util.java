@@ -3,19 +3,20 @@ package com.cleantips.s3.generator;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
-import com.amazonaws.services.ec2.AmazonEC2;
-import com.amazonaws.services.ec2.AmazonEC2ClientBuilder;
-import com.amazonaws.services.ec2.model.AvailabilityZone;
-import com.amazonaws.services.ec2.model.DescribeAvailabilityZonesRequest;
-import com.amazonaws.services.ec2.model.DescribeAvailabilityZonesResult;
-import com.amazonaws.services.ec2.model.DescribeRegionsResult;
-import com.amazonaws.services.ec2.model.Region;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.AccessControlList;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.CanonicalGrantee;
+import com.amazonaws.services.s3.model.EmailAddressGrantee;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.cleantips.s3.bucket.model.AccelerateConfiguration;
+import com.cleantips.s3.bucket.model.AnalyticsConfiguration;
 import com.cleantips.s3.bucket.model.Bucket;
 import com.cleantips.s3.bucket.model.BucketEncryption;
 import com.cleantips.s3.bucket.model.CorsConfiguration;
@@ -23,6 +24,9 @@ import com.cleantips.s3.bucket.model.CorsRule;
 import com.cleantips.s3.bucket.model.LifecycleConfiguration;
 import com.cleantips.s3.bucket.model.Properties;
 import com.cleantips.s3.bucket.model.RedirectAllRequestsTo;
+import com.cleantips.s3.bucket.model.RedirectRule;
+import com.cleantips.s3.bucket.model.RoutingRule;
+import com.cleantips.s3.bucket.model.RoutingRuleCondition;
 import com.cleantips.s3.bucket.model.Rule;
 import com.cleantips.s3.bucket.model.VersioningConfiguration;
 import com.cleantips.s3.bucket.model.WebsiteConfiguration;
@@ -30,7 +34,7 @@ import com.cleantips.s3.bucket.model.WebsiteConfiguration;
 public class Util {
 
 	@SuppressWarnings("unused")
-	public static Bucket createBucket(HashMap map, String regionName) {
+	public static Bucket createBucket(ConcurrentHashMap map, String regionName) {
 
 		Bucket bucket = new Bucket();
 
@@ -42,83 +46,134 @@ public class Util {
 
 	}
 
-	private static Properties generateBucketProperties(Bucket bucket, String regionName, HashMap map) {
+	private static Properties generateBucketProperties(Bucket bucket, String regionName, ConcurrentHashMap map) {
 
 		Properties properties = new Properties();
 
 		properties.setAccelerateConfiguration(createAccelerateConfig(regionName, map));
 
-		properties.setAccessControl(map.get("accessControl").toString());
+		if (map.get("privateaccess") != null) {
 
-		 properties.setAnalyticsConfigurations(null);
+			properties.setAccessControl(AccessControl.Private.toString());
 
-		if (map.get("bucketType").toString().equalsIgnoreCase("website")) {
+		}else if (map.get("fullaccess") != null) {
+			
+			properties.setAccessControl(AccessControl.PublicReadWrite.toString());
+		}
+		else if (map.get("readonlyaccess") != null) {
+			
+			properties.setAccessControl(AccessControl.PublicRead.toString());
+		}
+		if (map.get("analyticsConfigurations") != null
+				&& !map.get("analyticsConfigurations").toString().equalsIgnoreCase("")) {
+
+			properties.setAnalyticsConfigurations(createAnalytics(regionName, map));
+
+		}
+		if (map.get("bucketEncryption") != null && !map.get("bucketEncryption").toString().equalsIgnoreCase("")) {
+
+			properties.setBucketEncryption(createBucketEncryption(regionName, map));
+
+		}
+
+		properties.setBucketName(getAlphaNumericString(8));
+
+		if ((map.get("bucketType") != null && map.get("bucketType").toString().equalsIgnoreCase("bucketType"))||
+				(map.get("website") != null && map.get("website").toString().equalsIgnoreCase("website"))||
+				(map.get("app") != null && map.get("app").toString().equalsIgnoreCase("app"))||
+				(map.get("webapp") != null && map.get("webapp").toString().equalsIgnoreCase("webapp"))||
+				(map.get("static") != null && map.get("static").toString().equalsIgnoreCase("static"))) {
 
 			properties.setBucketEncryption(null);
 
-		} else {
-
-			// properties.setBucketEncryption(createBucketEncryption(regionName,map));
-		}
-
-		properties.setBucketName(map.get("bucketName").toString());
-
-		if (map.get("bucketType").toString().equalsIgnoreCase("website")) {
+			properties.setAnalyticsConfigurations(null);
 
 			properties.setCorsConfiguration(createCorsConfig(regionName, map));
 
-		} else {
+			properties.setWebsiteConfiguration(createWebsiteConfig(regionName, map));
 
-			properties.setCorsConfiguration(null);
 		}
-		properties.setInventoryConfigurations(null);
+		if (map.get("bucketType") != null && !map.get("bucketType").toString().equalsIgnoreCase("website")) {
 
-		if (!map.get("bucketType").toString().equalsIgnoreCase("website")) {
+			if (map.get("encryption") != null && !map.get("encryption").toString().equalsIgnoreCase("")) {
+
+				properties.setBucketEncryption(createBucketEncryption(regionName, map));
+
+			}
+			if (map.get("loggingConfiguration") != null
+					&& !map.get("loggingConfiguration").toString().equalsIgnoreCase("")) {
+
+				// properties.setLoggingConfiguration(loggingConfiguration);
+			}
+
+			if (map.get("metricsConfigurations") != null
+					&& !map.get("metricsConfigurations").toString().equalsIgnoreCase("")) {
+
+				// properties.setMetricsConfigurations(metricsConfigurations);;
+			}
+			if (map.get("notificationConfiguration") != null
+					&& !map.get("notificationConfiguration").toString().equalsIgnoreCase("")) {
+
+				// properties.setNotificationConfiguration(notificationConfiguration);
+			}
+			if (map.get("objectLockConfiguration") != null
+					&& !map.get("objectLockConfiguration").toString().equalsIgnoreCase("")) {
+
+				// properties.setObjectLockConfiguration(objectLockConfiguration);
+			}
+			if (map.get("objectLockEnabled") != null && !map.get("objectLockEnabled").toString().equalsIgnoreCase("")) {
+
+				properties.setObjectLockEnabled(true);
+			}
+
+			// properties.setTags(tags);
+			// properties.setReplicationConfiguration(replicationConfiguration);
+
+			if (map.get("publicAccessBlockConfiguration") != null
+					&& !map.get("publicAccessBlockConfiguration").toString().equalsIgnoreCase("")) {
+
+				// properties.setPublicAccessBlockConfiguration(createPublicAccessBlockConfiguration(regionName,map));
+
+			}
+
+		}
+		if (map.get("lifeCycleConfiguration") != null
+				&& !map.get("lifeCycleConfiguration").toString().equalsIgnoreCase("")) {
 
 			properties.setLifecycleConfiguration(createLifeCycleConfiguration(regionName, map));
 
-		}
-		if (!map.get("bucketType").toString().equalsIgnoreCase("website")) {
+			if (map.get("inventoryConfiguration") != null
+					&& !map.get("inventoryConfiguration").toString().equalsIgnoreCase("")) {
 
-			// properties.setLoggingConfiguration(loggingConfiguration);
-		}
-		if (!map.get("bucketType").toString().equalsIgnoreCase("website")) {
-			// properties.setMetricsConfigurations(metricsConfigurations);
-		}
-		if (!map.get("bucketType").toString().equalsIgnoreCase("website")) {
-			// .//properties.setNotificationConfiguration(notificationConfiguration);
-		}
-		if (!map.get("bucketType").toString().equalsIgnoreCase("website")) {
-			// properties.setObjectLockConfiguration(objectLockConfiguration);
-		}
-		if (!map.get("bucketType").toString().equalsIgnoreCase("website")) {
-			properties.setObjectLockEnabled(false);
-		}
-		
-		// properties.setPublicAccessBlockConfiguration(createPublicAccessBlockConfiguration(regionName,map));
+				properties.setInventoryConfigurations(null);
+			}
 
-//		//properties.setReplicationConfiguration(replicationConfiguration);
-
-		// properties.setTags(tags);
-
-		properties.setVersioningConfiguration(createVersionConfig(regionName,map));
-
-		properties.setWebsiteConfiguration(createWebsiteConfig(regionName, map));
-
+			// properties.setVersioningConfiguration(createVersionConfig(regionName, map));
+		}
 		return properties;
 
 	}
 
 	@SuppressWarnings("unused")
-	public static AccelerateConfiguration createAccelerateConfig(String regionName, HashMap map) {
+	public static AccelerateConfiguration createAccelerateConfig(String regionName, ConcurrentHashMap map) {
 
 		AccelerateConfiguration accelerateConfiguration = new AccelerateConfiguration();
+		
+		System.out.println("test:::"+map.get("acceleration").toString());
 
-		accelerateConfiguration.setAccessControlTranslation("Enabled");
+		if (map.get("acceleration") != null) {
+
+			accelerateConfiguration.setAccelerationStatus(Accelerate.Enabled.toString());
+
+		}else {
+			
+			accelerateConfiguration.setAccelerationStatus(Accelerate.Suspended.toString());
+		}
 
 		return accelerateConfiguration;
 
 	}
+
 	public static VersioningConfiguration createVersionConfig(String regionName, HashMap map) {
 
 		VersioningConfiguration versioningConfiguration = new VersioningConfiguration();
@@ -129,7 +184,7 @@ public class Util {
 
 	}
 
-	public static BucketEncryption createBucketEncryption(String regionName, HashMap map) {
+	public static BucketEncryption createBucketEncryption(String regionName, ConcurrentHashMap map) {
 
 		BucketEncryption bucketEncryption = new BucketEncryption();
 
@@ -139,19 +194,23 @@ public class Util {
 
 	}
 
-	public static CorsConfiguration createCorsConfig(String regionName, HashMap map) {
+	public static CorsConfiguration createCorsConfig(String regionName, ConcurrentHashMap map) {
 
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
 
 		CorsRule corsRule = new CorsRule();
 
 		corsRule.setAllowedHeaders(null);
+		
+		ArrayList<String> method=new ArrayList<String>();
+		
+		method.add("GET");
+		method.add("POST");
+		method.add("DELETE");
+		method.add("HEAD");
 
-		if (map.get("allowedMethods") != null) {
+		corsRule.setAllowedMethods(method);
 
-			corsRule.setAllowedMethods((ArrayList<String>) map.get("allowedMethods"));
-
-		}
 		if (map.get("allowedOrigins") != null) {
 
 			corsRule.setAllowedOrigins((ArrayList<String>) map.get("allowedOrigins"));
@@ -174,7 +233,7 @@ public class Util {
 
 	}
 
-	public static LifecycleConfiguration createLifeCycleConfiguration(String regionName, HashMap map) {
+	public static LifecycleConfiguration createLifeCycleConfiguration(String regionName, ConcurrentHashMap map) {
 
 		LifecycleConfiguration lifecycleConfiguration = new LifecycleConfiguration();
 
@@ -190,27 +249,30 @@ public class Util {
 
 	}
 
-	public static WebsiteConfiguration createWebsiteConfig(String regionName, HashMap map) {
+	public static WebsiteConfiguration createWebsiteConfig(String regionName, ConcurrentHashMap map) {
 
 		WebsiteConfiguration websiteConfiguration = new WebsiteConfiguration();
 
-		websiteConfiguration.setErrorDocument(null);
+		if (map.get("indexDocument") != null) {
 
-		websiteConfiguration.setIndexDocument(map.get("indexDocument").toString());
+			websiteConfiguration.setIndexDocument(map.get("indexDocument").toString());
+		}
 
-		websiteConfiguration.setRedirectAllRequestsTo(null);
+		websiteConfiguration.setRoutingRules(createRoutingRule(regionName, map));
 
-		websiteConfiguration.setRoutingRules(null);
+		websiteConfiguration.setErrorDocument("error.html");
+
+		// websiteConfiguration.setRedirectAllRequestsTo(createRedirectRule(regionName,map));
 
 		return websiteConfiguration;
 
 	}
 
-	public static RedirectAllRequestsTo createRoutingRule(String regionName, HashMap map) {
+	public static RedirectAllRequestsTo createRedirectRule(String regionName, HashMap map) {
 
 		RedirectAllRequestsTo redirectAllRequestsTo = new RedirectAllRequestsTo();
 
-		redirectAllRequestsTo.setHostName(map.get("host").toString());
+		redirectAllRequestsTo.setHostName("test");
 
 		redirectAllRequestsTo.setProtocol("https");
 
@@ -218,167 +280,63 @@ public class Util {
 
 	}
 
-	/*public static ArrayList<CustomErrorResponses> createCustomErrrorResponse() {
+	public static ArrayList<AnalyticsConfiguration> createAnalytics(String regionName, ConcurrentHashMap map) {
 
-		ArrayList customErrorResponses = new ArrayList();
+		AnalyticsConfiguration analyticsConfiguration = new AnalyticsConfiguration();
 
-		CustomErrorResponses customErrorResponse = new CustomErrorResponses();
+		ArrayList<AnalyticsConfiguration> list = new ArrayList<AnalyticsConfiguration>();
 
-		customErrorResponse.setErrorCachingMinTTL(2);
+		// analyticsConfiguration.setId(id);
 
-		customErrorResponse.setErrorCode(404);
+		// analyticsConfiguration.setPrefix(prefix);
 
-		customErrorResponse.setResponseCode(200);
+		// analyticsConfiguration.setStorageClassAnalysis(storageClassAnalysis);
 
-		customErrorResponse.setResponsePagePath("");
+		// analyticsConfiguration.setTagFilters(tagFilters);
 
-		customErrorResponses.add(customErrorResponse);
-
-		return customErrorResponses;
+		return list;
 
 	}
 
-	public static ArrayList<CacheBehaviors> createCacheBehavior(HashMap map) {
+	public static ArrayList<RoutingRule> createRoutingRule(String regionName, ConcurrentHashMap map) {
 
-		ArrayList<CacheBehaviors> cacheBehaviors = new ArrayList();
+		RoutingRule routingRule = new RoutingRule();
 
-		CacheBehaviors cacheBehavior = new CacheBehaviors();
+		RedirectRule redirectRule = new RedirectRule();
 
-		cacheBehavior.setAllowedMethods((ArrayList) map.get("allowedMethods"));
+		redirectRule.setHostName("test");
 
-		cacheBehavior.setCompress(false);
+		redirectRule.setHttpRedirectCode("302");
 
-		cacheBehavior.setDefaultTTL(120);
+		redirectRule.setProtocol("http");
 
-		// cacheBehavior.setFieldLevelEncryptionId(fieldLevelEncryptionId);
+		RoutingRuleCondition routingRuleCondition = new RoutingRuleCondition();
 
-		// cacheBehavior.setForwardedValues(forwardedValues);
+		routingRuleCondition.setHttpErrorCodeReturnedEquals("404");
 
-		// cacheBehavior.setLambdaFunctionAssociations(lambdaFunctionAssociations);
+		routingRuleCondition.setKeyPrefixEquals("report-404/");
 
-		cacheBehavior.setMaxTTL(120);
+		routingRule.setRedirectRule(redirectRule);
 
-		cacheBehavior.setMinTTL(20);
+		routingRule.setRoutingRuleCondition(routingRuleCondition);
 
-		cacheBehavior.setPathPattern("*");
+		ArrayList routingRules = new ArrayList();
 
-		cacheBehavior.setSmoothStreaming((boolean) map.get("smoothStreaming"));
+		routingRules.add(routingRule);
 
-		cacheBehavior.setTargetOriginId(null);
-
-		// cacheBehavior.setTrustedSigners(trustedSigners);
-
-		cacheBehavior.setViewerProtocolPolicy("allow-all");
-
-		cacheBehaviors.add(cacheBehavior);
-
-		return cacheBehaviors;
+		return routingRules;
 
 	}
 
-	public static DefaultCacheBehavior createDefaultCacheBehavior(HashMap map) {
-
-		DefaultCacheBehavior cacheBehavior = new DefaultCacheBehavior();
-
-		cacheBehavior.setAllowedMethods((ArrayList) map.get("allowedMethods"));
-
-		cacheBehavior.setCompress(false);
-
-		cacheBehavior.setDefaultTTL(120);
-
-		// cacheBehavior.setFieldLevelEncryptionId(fieldLevelEncryptionId);
-
-		// cacheBehavior.setForwardedValues(forwardedValues);
-
-		// cacheBehavior.setLambdaFunctionAssociations(lambdaFunctionAssociations);
-
-		cacheBehavior.setMaxTTL(120);
-
-		cacheBehavior.setMinTTL(20);
-
-		cacheBehavior.setSmoothStreaming((boolean) map.get("smoothStreaming"));
-
-		cacheBehavior.setTargetOriginId(null);
-
-		// cacheBehavior.setTrustedSigners(trustedSigners);
-
-		cacheBehavior.setViewerProtocolPolicy("allow-all");
-
-		return cacheBehavior;
-
-	}
-
-	public static ArrayList<Origins> createOrigin() {
-
-		ArrayList<Origins> origins = new ArrayList();
-
-		Origins origin = new Origins();
-
-		origin.setCustomOriginConfig(createCustomOriginConfig());
-
-		origin.setDomainName("");
-
-		origin.setId("");
-
-		// origin.setOriginCustomHeaders(originCustomHeaders);
-
-		// origin.setOriginPath(originPath);
-
-		origin.setS3OriginConfig(createS3OriginConfig());
-
-		origins.add(origin);
-
-		return origins;
-
-	}
-
-	public static CustomOriginConfig createCustomOriginConfig() {
-
-		CustomOriginConfig customOriginConfig = new CustomOriginConfig();
-
-		customOriginConfig.setHTTPPort(80);
-
-		customOriginConfig.setHTTPSPort(443);
-
-		customOriginConfig.setOriginKeepaliveTimeout(30);
-
-		customOriginConfig.setOriginProtocolPolicy("match-viewer");
-
-		customOriginConfig.setOriginReadTimeout(30);
-
-		// customOriginConfig.setOriginSSLProtocols(originSSLProtocols);
-
-		return customOriginConfig;
-
-	}
-
-	public static S3OriginConfig createS3OriginConfig() {
-
-		S3OriginConfig s3OriginConfig = new S3OriginConfig();
-
-		s3OriginConfig.setOriginAccessIdentity("");
-
-		return s3OriginConfig;
-
-	}
-
-	public static GeoRestriction createGeoRestriction() {
-
-		GeoRestriction geoRestriction = new GeoRestriction();
-
-		// geoRestriction.setLocations(locations);
-
-		// geoRestriction.setRestrictionType(restrictionType);
-
-		return geoRestriction;
-
-	}*/
-
-	public static String getBucketLocation(HashMap map, String region, File file, String type) {
+	public static String getBucketLocation(ConcurrentHashMap map, String region, File file, String type) {
 
 		String bucketName = map.get("architecture").toString();
 
-		String finalBucketName = bucketName.concat(type.toLowerCase());
+		System.out.println("bucketName:::" + bucketName);
+		System.out.println("type:::" + type);
+		System.out.println("region:::" + region);
+
+		String finalBucketName = "dsadweewwe".concat(type.toLowerCase());
 
 		System.out.println("bucker nme::::" + finalBucketName);
 
@@ -397,11 +355,41 @@ public class Util {
 		metadata.setContentType("plain/text");
 		metadata.addUserMetadata("x-amz-meta-title", "someTitle");
 		request.setMetadata(metadata);
+		request.setCannedAcl(CannedAccessControlList.PublicRead);
 		s3.putObject(request);
 		System.out.println("finalBucketName nme::all::" + finalBucketName);
 		String bucketLocation = s3.getUrl(finalBucketName, type).toExternalForm();
-		System.out.println("bucketLocation nme::::" + bucketLocation);
+
 		return bucketLocation;
 
+	}
+
+	static String getAlphaNumericString(int n) {
+
+		// chose a Character random from this String
+		String AlphaNumericString = "abcdefghijklmnopqrstuvxyz";
+
+		// create StringBuffer size of AlphaNumericString
+		StringBuilder sb = new StringBuilder(n);
+
+		for (int i = 0; i < n; i++) {
+
+			// generate a random number between
+			// 0 to AlphaNumericString variable length
+			int index = (int) (AlphaNumericString.length() * Math.random());
+
+			// add Character one by one in end of sb
+			sb.append(AlphaNumericString.charAt(index));
+		}
+
+		return sb.toString();
+	}
+	
+	enum Accelerate 
+    { 
+        Enabled, Suspended; 
+    } 
+	enum AccessControl {
+		Private, PublicRead, PublicReadWrite, AuthenticatedRead, LogDeliveryWrite, BucketOwnerRead, BucketOwnerFullControl,AwsExecRead
 	}
 }

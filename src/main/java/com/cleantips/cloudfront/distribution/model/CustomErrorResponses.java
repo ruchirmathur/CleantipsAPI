@@ -7,13 +7,13 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonNaming(PropertyNamingStrategy.PascalCaseStrategy.class)
 public class CustomErrorResponses {
-private double ErrorCachingMinTTL;
+private int ErrorCachingMinTTL;
 private int ErrorCode;
 private int ResponseCode;
-public double getErrorCachingMinTTL() {
+public int getErrorCachingMinTTL() {
 	return ErrorCachingMinTTL;
 }
-public void setErrorCachingMinTTL(double errorCachingMinTTL) {
+public void setErrorCachingMinTTL(int errorCachingMinTTL) {
 	ErrorCachingMinTTL = errorCachingMinTTL;
 }
 public int getErrorCode() {

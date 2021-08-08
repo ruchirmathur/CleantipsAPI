@@ -7,14 +7,15 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 @JsonNaming(PropertyNamingStrategy.PascalCaseStrategy.class)
 public class Resources {
 
-private com.cleantips.cloudfront.distribution.model.Distribution Distribution;
+private com.cleantips.s3.bucket.model.Bucket Bucket;
 
-public com.cleantips.cloudfront.distribution.model.Distribution getDistribution() {
-	return Distribution;
+public com.cleantips.s3.bucket.model.Bucket getBucket() {
+	return Bucket;
 }
 
-public void setDistribution(com.cleantips.cloudfront.distribution.model.Distribution distribution) {
-	Distribution = distribution;
+public void setBucket(com.cleantips.s3.bucket.model.Bucket bucket) {
+	Bucket = bucket;
 }
+
 
 }
